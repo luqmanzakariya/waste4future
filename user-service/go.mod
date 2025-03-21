@@ -8,9 +8,12 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/labstack/echo/v4 v4.13.3
 	github.com/sirupsen/logrus v1.9.3
+	github.com/soheilhy/cmux v0.1.5
 	github.com/swaggo/echo-swagger v1.4.1
 	github.com/swaggo/swag v1.16.4
 	golang.org/x/crypto v0.36.0
+	google.golang.org/grpc v1.71.0
+	google.golang.org/protobuf v1.36.4
 	gorm.io/driver/postgres v1.5.11
 	gorm.io/gorm v1.25.12
 )
@@ -49,5 +52,6 @@ require (
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 	golang.org/x/tools v0.26.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )

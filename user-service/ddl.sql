@@ -39,5 +39,5 @@ END $$;
 
 INSERT INTO users (email, name, password, address_id) VALUES
 ('luqman@mail.com', 'Luqman', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', ''),
-('yosua@example.com', 'Yosua', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', ''),
-('nafatul@example.com', 'Nafatul', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', '');
+('yosua@mail.com', 'Yosua', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', ''),
+('nafatul@mail.com', 'Nafatul', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', '');
