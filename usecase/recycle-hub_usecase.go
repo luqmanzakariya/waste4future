@@ -41,11 +41,11 @@ func (u *recycleHubUsecase) FindAll(ctx context.Context) ([]response.RecycleHubR
 }
 
 func (u *recycleHubUsecase) FindById(ctx context.Context, id string) (response.RecycleHubResponse, error) {
-	recycleHub, err := u.RecycleHubRepo.FindById(ctx, id)
+	recycleHub, err := u.RecycleHubRepo.FindByID(ctx, id)
 	if err != nil {
 		return response.RecycleHubResponse{}, errors.New("recycle hub not found")
 	}
-	return helper.RecycleHubToResponse(recycleHub), nil
+	return helper.RecycleHubToResponse(*recycleHub), nil
 }
 
 func (u *recycleHubUsecase) Create(ctx context.Context, payload web.RecycleHubCreateRequest) (response.RecycleHubResponse, error) {
@@ -54,7 +54,7 @@ func (u *recycleHubUsecase) Create(ctx context.Context, payload web.RecycleHubCr
 		return response.RecycleHubResponse{}, err
 	}
 
-	newRecycleHub := domain.RecycleHub{
+	newRecycleHub := &domain.RecycleHub{
 		Name:        payload.Name,
 		Phone:       payload.Phone,
 		AddressID:   payload.AddressID,
@@ -66,7 +66,7 @@ func (u *recycleHubUsecase) Create(ctx context.Context, payload web.RecycleHubCr
 		return response.RecycleHubResponse{}, err
 	}
 
-	return helper.RecycleHubToResponse(recycleHubCreated), nil
+	return helper.RecycleHubToResponse(*recycleHubCreated), nil
 }
 
 func (u *recycleHubUsecase) Update(ctx context.Context, payload web.RecycleHubUpdateRequest, id string) (response.RecycleHubResponse, error) {
@@ -75,12 +75,12 @@ func (u *recycleHubUsecase) Update(ctx context.Context, payload web.RecycleHubUp
 		return response.RecycleHubResponse{}, err
 	}
 
-	recycleHub, err := u.RecycleHubRepo.FindById(ctx, id)
+	_, err = u.RecycleHubRepo.FindByID(ctx, id)
 	if err != nil {
 		return response.RecycleHubResponse{}, errors.New("recycle hub not found")
 	}
 
-	updatedRecycleHub := domain.RecycleHub{
+	updatedRecycleHub := &domain.RecycleHub{
 		Name:        payload.Name,
 		Phone:       payload.Phone,
 		AddressID:   payload.AddressID,
@@ -92,11 +92,11 @@ func (u *recycleHubUsecase) Update(ctx context.Context, payload web.RecycleHubUp
 		return response.RecycleHubResponse{}, err
 	}
 
-	return helper.RecycleHubToResponse(updatedRecycleHub), nil
+	return helper.RecycleHubToResponse(*updatedRecycleHub), nil
 }
 
 func (u *recycleHubUsecase) Delete(ctx context.Context, id string) error {
-	recycleHub, err := u.RecycleHubRepo.FindById(ctx, id)
+	recycleHub, err := u.RecycleHubRepo.FindByID(ctx, id)
 	if err != nil {
 		return errors.New("recycle hub not found")
 	}

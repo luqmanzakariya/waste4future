@@ -2,43 +2,27 @@ package usecase
 
 import (
 	"context"
-	"errors"
-	"recyclehub-service/helper"
-	"recyclehub-service/model/web/response"
+	"recyclehub-service/model/domain"
 	"recyclehub-service/repository"
-
-	"github.com/go-playground/validator/v10"
 )
 
 type IWasteTypeUsecase interface {
-	FindAll(ctx context.Context) ([]response.WasteTypeResponse, error)
-	FindById(ctx context.Context, id string) (response.WasteTypeResponse, error)
+	FindAll(ctx context.Context) ([]domain.WasteType, error)
+	FindById(ctx context.Context, id string) (domain.WasteType, error)
 }
 
 type wasteTypeUsecase struct {
-	WasteTypeRepo repository.IWasteTypeRepository
-	Validate      *validator.Validate
+	repo repository.WasteTypeRepository
 }
 
-func NewWasteTypeUsecase(wasteTypeRepo repository.IWasteTypeRepository, validate *validator.Validate) IWasteTypeUsecase {
-	return &wasteTypeUsecase{
-		WasteTypeRepo: wasteTypeRepo,
-		Validate:      validate,
-	}
+func NewWasteTypeUsecase(repo repository.WasteTypeRepository) IWasteTypeUsecase {
+	return &wasteTypeUsecase{repo: repo}
 }
 
-func (u *wasteTypeUsecase) FindAll(ctx context.Context) ([]response.WasteTypeResponse, error) {
-	wasteTypes, err := u.WasteTypeRepo.FindAll(ctx)
-	if err != nil {
-		return []response.WasteTypeResponse{}, err
-	}
-	return helper.WasteTypeToResponses(wasteTypes), nil
+func (u *wasteTypeUsecase) FindAll(ctx context.Context) ([]domain.WasteType, error) {
+	return u.repo.FindAll(ctx)
 }
 
-func (u *wasteTypeUsecase) FindById(ctx context.Context, id string) (response.WasteTypeResponse, error) {
-	wasteType, err := u.WasteTypeRepo.FindById(ctx, id)
-	if err != nil {
-		return response.WasteTypeResponse{}, errors.New("waste type not found")
-	}
-	return helper.WasteTypeToResponse(wasteType), nil
+func (u *wasteTypeUsecase) FindById(ctx context.Context, id string) (domain.WasteType, error) {
+	return u.repo.FindById(ctx, id)
 }

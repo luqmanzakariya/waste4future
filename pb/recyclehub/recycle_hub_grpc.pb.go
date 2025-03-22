@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	WasteTypeService_GetAllWasteTypes_FullMethodName = "/pb.recyclehub.WasteTypeService/GetAllWasteTypes"
+	WasteTypeService_GetWasteTypeByID_FullMethodName = "/pb.recyclehub.WasteTypeService/GetWasteTypeByID"
 )
 
 // WasteTypeServiceClient is the client API for WasteTypeService service.
@@ -30,6 +31,8 @@ const (
 type WasteTypeServiceClient interface {
 	// GetAllWasteTypes retrieves all waste types.
 	GetAllWasteTypes(ctx context.Context, in *Empty, opts ...grpc.CallOption) (*WasteTypeList, error)
+	// GetWasteTypeByID retrieves a specific waste type by ID.
+	GetWasteTypeByID(ctx context.Context, in *GetWasteTypeByIDRequest, opts ...grpc.CallOption) (*WasteType, error)
 }
 
 type wasteTypeServiceClient struct {
@@ -50,6 +53,16 @@ func (c *wasteTypeServiceClient) GetAllWasteTypes(ctx context.Context, in *Empty
 	return out, nil
 }
 
+func (c *wasteTypeServiceClient) GetWasteTypeByID(ctx context.Context, in *GetWasteTypeByIDRequest, opts ...grpc.CallOption) (*WasteType, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(WasteType)
+	err := c.cc.Invoke(ctx, WasteTypeService_GetWasteTypeByID_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WasteTypeServiceServer is the server API for WasteTypeService service.
 // All implementations must embed UnimplementedWasteTypeServiceServer
 // for forward compatibility.
@@ -58,6 +71,8 @@ func (c *wasteTypeServiceClient) GetAllWasteTypes(ctx context.Context, in *Empty
 type WasteTypeServiceServer interface {
 	// GetAllWasteTypes retrieves all waste types.
 	GetAllWasteTypes(context.Context, *Empty) (*WasteTypeList, error)
+	// GetWasteTypeByID retrieves a specific waste type by ID.
+	GetWasteTypeByID(context.Context, *GetWasteTypeByIDRequest) (*WasteType, error)
 	mustEmbedUnimplementedWasteTypeServiceServer()
 }
 
@@ -70,6 +85,9 @@ type UnimplementedWasteTypeServiceServer struct{}
 
 func (UnimplementedWasteTypeServiceServer) GetAllWasteTypes(context.Context, *Empty) (*WasteTypeList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetAllWasteTypes not implemented")
+}
+func (UnimplementedWasteTypeServiceServer) GetWasteTypeByID(context.Context, *GetWasteTypeByIDRequest) (*WasteType, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWasteTypeByID not implemented")
 }
 func (UnimplementedWasteTypeServiceServer) mustEmbedUnimplementedWasteTypeServiceServer() {}
 func (UnimplementedWasteTypeServiceServer) testEmbeddedByValue()                          {}
@@ -110,6 +128,24 @@ func _WasteTypeService_GetAllWasteTypes_Handler(srv interface{}, ctx context.Con
 	return interceptor(ctx, in, info, handler)
 }
 
+func _WasteTypeService_GetWasteTypeByID_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetWasteTypeByIDRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WasteTypeServiceServer).GetWasteTypeByID(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: WasteTypeService_GetWasteTypeByID_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WasteTypeServiceServer).GetWasteTypeByID(ctx, req.(*GetWasteTypeByIDRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // WasteTypeService_ServiceDesc is the grpc.ServiceDesc for WasteTypeService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -120,6 +156,10 @@ var WasteTypeService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAllWasteTypes",
 			Handler:    _WasteTypeService_GetAllWasteTypes_Handler,
+		},
+		{
+			MethodName: "GetWasteTypeByID",
+			Handler:    _WasteTypeService_GetWasteTypeByID_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
