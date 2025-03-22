@@ -1,0 +1,327 @@
+{
+    "schemes": [
+        "https",
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the documentation of Waste4Future User Service API",
+        "title": "Waste4Future User Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "user-service-84457363535.asia-southeast2.run.app",
+    "basePath": "/",
+    "paths": {
+        "/api/users/login": {
+            "post": {
+                "description": "Login users and get token authentication",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Login users",
+                "parameters": [
+                    {
+                        "description": "user login payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserLoginRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Token generated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.TokenResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Get detail user by token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Get detail user",
+                "responses": {
+                    "200": {
+                        "description": "Get detail users with token",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/register": {
+            "post": {
+                "description": "Create new Users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Create a Users",
+                "parameters": [
+                    {
+                        "description": "create user payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/request.UserCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/response.UserResponse"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/response.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "request.UserCreateRequest": {
+            "description": "UserCreateRequest details.",
+            "type": "object",
+            "required": [
+                "address_id",
+                "email",
+                "name",
+                "password"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "example": ""
+                },
+                "email": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "example": "newuser@mail.com"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "example": "new user"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "example": "password123"
+                }
+            }
+        },
+        "request.UserLoginRequest": {
+            "description": "UserLoginRequest details.",
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "example": "luqman@mail.com"
+                },
+                "password": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1,
+                    "example": "password123"
+                }
+            }
+        },
+        "response.TokenResponse": {
+            "description": "represents the standard token response format.",
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "response.UserResponse": {
+            "description": "UserResponse details.",
+            "type": "object",
+            "required": [
+                "address_id",
+                "email",
+                "id",
+                "name"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                },
+                "email": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                },
+                "id": {
+                    "type": "integer",
+                    "maximum": 200,
+                    "minimum": 1
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 200,
+                    "minLength": 1
+                }
+            }
+        },
+        "response.WebResponse": {
+            "description": "represents the standard API response format.",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

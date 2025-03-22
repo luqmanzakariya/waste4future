@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package pb.user;
+
+option go_package="pb/user";
+
+message User {
+  int64 ID = 1;
+  string Email = 2;
+  string Name = 3;
+  string AddressID = 4;
+}
+
+message ValidateRequest {}
+
+service UserService {
+  rpc Validate(ValidateRequest) returns (User) {}
+}
