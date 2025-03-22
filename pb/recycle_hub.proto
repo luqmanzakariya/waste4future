@@ -42,9 +42,6 @@ service RecycleHubService {
     rpc DeleteRecycleHub (DeleteRecycleHubRequest) returns (Empty);
 }
 
-// Empty is an empty message for requests/responses that don't need parameters.
-message Empty {}
-
 // CreateRecycleHubRequest contains the data needed to create a new recycle hub.
 message CreateRecycleHubRequest {
     string name = 1;
