@@ -331,7 +331,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:8080",
+	Host:             "user-service-84457363535.asia-southeast2.run.app",
 	BasePath:         "/",
 	Schemes:          []string{"https", "http"},
 	Title:            "Waste4Future User Service API",

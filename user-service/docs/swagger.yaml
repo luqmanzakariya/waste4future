@@ -86,7 +86,7 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:8080
+host: user-service-84457363535.asia-southeast2.run.app
 info:
   contact: {}
   description: This is the documentation of Waste4Future User Service API

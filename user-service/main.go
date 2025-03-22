@@ -31,7 +31,7 @@ import (
 // @title Waste4Future User Service API
 // @version 1.0
 // @description This is the documentation of Waste4Future User Service API
-// @host localhost:8080
+// @host user-service-84457363535.asia-southeast2.run.app
 // @schemes https http
 // @BasePath /
 // @SecurityDefinitions.apikey BearerAuth
@@ -97,7 +97,7 @@ func StartCombinedServer(db *gorm.DB, errCh chan error) {
 
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins:     []string{"https://p2-individual-project-52554c162621.herokuapp.com"},
+		AllowOrigins:     []string{"https://user-service-84457363535.asia-southeast2.run.app"},
 		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
