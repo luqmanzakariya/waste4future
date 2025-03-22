@@ -9,13 +9,17 @@ import (
 
 	"recyclehub-service/handler/grpc"
 	"recyclehub-service/handler/http"
+	"recyclehub-service/middleware"
 	"recyclehub-service/repository"
 	"recyclehub-service/usecase"
 
+	pb "recyclehub-service/pb/recyclehub"
+
+	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"google.golang.org/grpc"
+	grpcLib "google.golang.org/grpc"
 
 	_ "github.com/joho/godotenv/autoload"
 )
@@ -49,17 +53,22 @@ func main() {
 	wasteTypeRepo := repository.NewWasteTypeRepository(wasteTypeCollection)
 	recycleHubRepo := repository.NewRecycleHubRepository(recycleHubCollection)
 
+	// Initialize validator
+	validate := validator.New()
+
 	// Initialize use cases
-	wasteTypeUseCase := usecase.NewWasteTypeUseCase(wasteTypeRepo)
-	recycleHubUseCase := usecase.NewRecycleHubUseCase(recycleHubRepo)
+	wasteTypeUseCase := usecase.NewWasteTypeUsecase(wasteTypeRepo)
+	recycleHubUseCase := usecase.NewRecycleHubUsecase(recycleHubRepo, validate)
 
 	// Initialize HTTP server
 	e := echo.New()
 	http.NewWasteTypeHandler(wasteTypeUseCase).RegisterRoutes(e)
 	http.NewRecycleHubHandler(recycleHubUseCase).RegisterRoutes(e)
 
-	// Initialize gRPC server
-	grpcServer := grpc.NewServer()
+	// Initialize gRPC server with an interceptor (e.g., for authentication)
+	grpcServer := grpcLib.NewServer(
+		grpcLib.UnaryInterceptor(middleware.GrpcAuth), // Add your gRPC interceptor here
+	)
 	pb.RegisterWasteTypeServiceServer(grpcServer, grpc.NewWasteTypeServer(wasteTypeUseCase))
 	pb.RegisterRecycleHubServiceServer(grpcServer, grpc.NewRecycleHubServer(recycleHubUseCase))
 
