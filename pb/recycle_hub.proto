@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package pb.recyclehub;
+
+option go_package = "pb/recyclehub";
+
+// WasteTypeService defines the gRPC service for managing waste types.
+service WasteTypeService {
+    // GetAllWasteTypes retrieves all waste types.
+    rpc GetAllWasteTypes (Empty) returns (WasteTypeList);
+}
+
+// Empty is an empty message for requests/responses that don't need parameters.
+message Empty {}
+
+// WasteType represents a single waste type.
+message WasteType {
+    string name = 1;
+    double price = 2;
+}
+
+// WasteTypeList represents a list of waste types.
+message WasteTypeList {
+    repeated WasteType waste_types = 1;
+}
+
+// RecycleHubService defines the gRPC service for managing recycle hubs.
+service RecycleHubService {
+    // CreateRecycleHub creates a new recycle hub.
+    rpc CreateRecycleHub (CreateRecycleHubRequest) returns (RecycleHubResponse);
+
+    // GetAllRecycleHubs retrieves all recycle hubs.
+    rpc GetAllRecycleHubs (Empty) returns (RecycleHubList);
+
+    // GetRecycleHubByID retrieves a recycle hub by its ID.
+    rpc GetRecycleHubByID (GetRecycleHubByIDRequest) returns (RecycleHubResponse);
+
+    // UpdateRecycleHub updates an existing recycle hub.
+    rpc UpdateRecycleHub (UpdateRecycleHubRequest) returns (RecycleHubResponse);
+
+    // DeleteRecycleHub deletes a recycle hub by its ID.
+    rpc DeleteRecycleHub (DeleteRecycleHubRequest) returns (Empty);
+}
+
+// Empty is an empty message for requests/responses that don't need parameters.
+message Empty {}
+
+// CreateRecycleHubRequest contains the data needed to create a new recycle hub.
+message CreateRecycleHubRequest {
+    string name = 1;
+    string phone = 2;
+    string address_id = 3;
+    string waste_type_id = 4;
+}
+
+// GetRecycleHubByIDRequest contains the ID of the recycle hub to retrieve.
+message GetRecycleHubByIDRequest {
+    string id = 1; // The MongoDB _id field
+}
+
+// UpdateRecycleHubRequest contains the data needed to update an existing recycle hub.
+message UpdateRecycleHubRequest {
+    string id = 1; // The MongoDB _id field
+    string name = 2;
+    string phone = 3;
+    string address_id = 4;
+    string waste_type_id = 5;
+}
+
+// DeleteRecycleHubRequest contains the ID of the recycle hub to delete.
+message DeleteRecycleHubRequest {
+    string id = 1; // The MongoDB _id field
+}
+
+// RecycleHubResponse represents a single recycle hub.
+message RecycleHubResponse {
+    string id = 1; // The MongoDB _id field
+    string name = 2;
+    string phone = 3;
+    string address_id = 4;
+    string waste_type_id = 5;
+}
+
+// RecycleHubList represents a list of recycle hubs.
+message RecycleHubList {
+    repeated RecycleHubResponse recycle_hubs = 1;
+}
