@@ -141,6 +141,8 @@ func StartCombinedServer(db *mongo.Database, errCh chan error) {
 	addressHTTPHandler.InitRoutes(addressRoutes)
 
 	// # Swagger documentation route
+	e.File("/swagger/doc.json", "docs/swagger.json")
+	e.File("/swagger/doc.yaml", "docs/swagger.yaml")
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// Initialize gRPC server

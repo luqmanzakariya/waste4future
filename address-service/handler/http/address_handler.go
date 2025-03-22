@@ -29,7 +29,7 @@ func (a addressHandler) InitRoutes(g *echo.Group) {
 }
 
 // Address Create
-// @Summary Create an Address
+// @Summary Create an Addressa
 // @Description Add and register new Address
 // @Tags Address
 // @Produce json
