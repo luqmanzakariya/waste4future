@@ -7,10 +7,10 @@ import (
 	"net"
 	"os"
 
-	"Recyclehub-service/handler/grpc"
-	"Recyclehub-service/handler/http"
-	"Recyclehub-service/repository"
-	"Recyclehub-service/usecase"
+	"recyclehub-service/handler/grpc"
+	"recyclehub-service/handler/http"
+	"recyclehub-service/repository"
+	"recyclehub-service/usecase"
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/mongo"
