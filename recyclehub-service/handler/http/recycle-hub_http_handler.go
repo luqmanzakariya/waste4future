@@ -17,6 +17,18 @@ func NewRecycleHubHandler(useCase usecase.IRecycleHubUsecase) *RecycleHubHandler
 	return &RecycleHubHandler{useCase: useCase}
 }
 
+// CreateRecycleHub godoc
+// @Summary Create a new recycle hub
+// @Description Create a new recycle hub with the provided details
+// @Tags recycle-hubs
+// @Accept json
+// @Produce json
+// @Param request body request.RecycleHubCreateRequest true "Recycle Hub Creation Request"
+// @Success 201 {object} response.RecycleHubResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /recycle-hubs [post]
+
 // CreateRecycleHub handles the HTTP POST request to create a new recycle hub.
 func (h *RecycleHubHandler) CreateRecycleHub(c echo.Context) error {
 	var req request.RecycleHubCreateRequest
@@ -31,6 +43,16 @@ func (h *RecycleHubHandler) CreateRecycleHub(c echo.Context) error {
 	return c.JSON(http.StatusCreated, recycleHub)
 }
 
+// GetAllRecycleHubs godoc
+// @Summary Get all recycle hubs
+// @Description Retrieve a list of all recycle hubs
+// @Tags recycle-hubs
+// @Accept json
+// @Produce json
+// @Success 200 {object} response.RecycleHubListResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /recycle-hubs [get]
+
 // GetAllRecycleHubs handles the HTTP GET request to retrieve all recycle hubs.
 func (h *RecycleHubHandler) GetAllRecycleHubs(c echo.Context) error {
 	recycleHubs, err := h.useCase.FindAll(c.Request().Context())
@@ -39,6 +61,17 @@ func (h *RecycleHubHandler) GetAllRecycleHubs(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, recycleHubs)
 }
+
+// GetRecycleHubByID godoc
+// @Summary Get a recycle hub by ID
+// @Description Retrieve a specific recycle hub by its ID
+// @Tags recycle-hubs
+// @Accept json
+// @Produce json
+// @Param id path string true "Recycle Hub ID"
+// @Success 200 {object} response.RecycleHubResponse
+// @Failure 404 {object} response.ErrorResponse
+// @Router /recycle-hubs/{id} [get]
 
 // GetRecycleHubByID handles the HTTP GET request to retrieve a specific recycle hub by ID.
 func (h *RecycleHubHandler) GetRecycleHubByID(c echo.Context) error {
@@ -49,6 +82,19 @@ func (h *RecycleHubHandler) GetRecycleHubByID(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, recycleHub)
 }
+
+// UpdateRecycleHub godoc
+// @Summary Update an existing recycle hub
+// @Description Update an existing recycle hub with the provided details
+// @Tags recycle-hubs
+// @Accept json
+// @Produce json
+// @Param id path string true "Recycle Hub ID"
+// @Param request body request.RecycleHubUpdateRequest true "Recycle Hub Update Request"
+// @Success 200 {object} response.RecycleHubResponse
+// @Failure 400 {object} response.ErrorResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /recycle-hubs/{id} [put]
 
 // UpdateRecycleHub handles the HTTP PUT request to update an existing recycle hub.
 func (h *RecycleHubHandler) UpdateRecycleHub(c echo.Context) error {
@@ -64,6 +110,17 @@ func (h *RecycleHubHandler) UpdateRecycleHub(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, recycleHub)
 }
+
+// DeleteRecycleHub godoc
+// @Summary Delete a recycle hub by ID
+// @Description Delete a specific recycle hub by its ID
+// @Tags recycle-hubs
+// @Accept json
+// @Produce json
+// @Param id path string true "Recycle Hub ID"
+// @Success 200 {object} response.SuccessResponse
+// @Failure 500 {object} response.ErrorResponse
+// @Router /recycle-hubs/{id} [delete]
 
 // DeleteRecycleHub handles the HTTP DELETE request to delete a recycle hub by ID.
 func (h *RecycleHubHandler) DeleteRecycleHub(c echo.Context) error {
