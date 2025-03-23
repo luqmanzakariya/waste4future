@@ -1,11 +1,295 @@
 basePath: /
+definitions:
+  request.RecycleHubCreateRequest:
+    description: RecycleHubCreateRequest represents the details required to create
+      a recycle hub.
+    properties:
+      address_id:
+        description: Address ID of the recycle hub
+        type: string
+      name:
+        description: Name of the recycle hub
+        type: string
+      phone:
+        description: Phone number of the recycle hub
+        type: string
+      waste_type_id:
+        description: Waste type ID associated with the recycle hub
+        items:
+          type: string
+        type: array
+    required:
+    - address_id
+    - name
+    - phone
+    - waste_type_id
+    type: object
+  request.RecycleHubUpdateRequest:
+    description: RecycleHubUpdateRequest represents the details required to update
+      a recycle hub.
+    properties:
+      address_id:
+        description: Updated address ID of the recycle hub
+        type: string
+      name:
+        description: Updated name of the recycle hub
+        type: string
+      phone:
+        description: Updated phone number of the recycle hub
+        type: string
+      waste_type_id:
+        description: Updated waste type ID associated with the recycle hub
+        items:
+          type: string
+        type: array
+    required:
+    - address_id
+    - name
+    - phone
+    - waste_type_id
+    type: object
+  response.ErrorResponse:
+    description: ErrorResponse represents an error message.
+    properties:
+      message:
+        description: Error message
+        type: string
+    type: object
+  response.RecycleHubListResponse:
+    properties:
+      recycle_hubs:
+        description: List of recycle hubs
+        items:
+          $ref: '#/definitions/response.RecycleHubResponse'
+        type: array
+    type: object
+  response.RecycleHubResponse:
+    description: RecycleHubResponse represents a recycle hub with its ID, name, phone,
+      address ID, and waste type IDs.
+    properties:
+      address_id:
+        description: Address ID of the recycle hub
+        type: string
+      id:
+        description: Unique identifier for the recycle hub
+        type: string
+      name:
+        description: Name of the recycle hub
+        type: string
+      phone:
+        description: Phone number of the recycle hub
+        type: string
+      waste_type_id:
+        description: Waste type ID associated with the recycle hub
+        items:
+          type: string
+        type: array
+    type: object
+  response.SuccessResponse:
+    description: SuccessResponse represents a success message.
+    properties:
+      message:
+        description: Success message
+        type: string
+    type: object
+  response.WasteTypeResponse:
+    description: WasteTypeResponse represents a waste type with its ID, name, and
+      price.
+    properties:
+      id:
+        description: Unique identifier for the waste type
+        type: string
+      name:
+        description: Name of the waste type
+        type: string
+      price:
+        description: Price of the waste type
+        type: number
+    type: object
 host: http://localhost:8080
 info:
   contact: {}
   description: This is the API documentation for the RecycleHub Service.
   title: RecycleHub Service API
   version: "1.0"
-paths: {}
+paths:
+  /recycle-hubs:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all recycle hubs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RecycleHubListResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all recycle hubs
+      tags:
+      - recycle-hubs
+    post:
+      consumes:
+      - application/json
+      description: Create a new recycle hub with the provided details
+      parameters:
+      - description: Recycle Hub Creation Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RecycleHubCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/response.RecycleHubResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Create a new recycle hub
+      tags:
+      - recycle-hubs
+  /recycle-hubs/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a specific recycle hub by its ID
+      parameters:
+      - description: Recycle Hub ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.SuccessResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Delete a recycle hub by ID
+      tags:
+      - recycle-hubs
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific recycle hub by its ID
+      parameters:
+      - description: Recycle Hub ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RecycleHubResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get a recycle hub by ID
+      tags:
+      - recycle-hubs
+    put:
+      consumes:
+      - application/json
+      description: Update an existing recycle hub with the provided details
+      parameters:
+      - description: Recycle Hub ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Recycle Hub Update Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/request.RecycleHubUpdateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.RecycleHubResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Update an existing recycle hub
+      tags:
+      - recycle-hubs
+  /waste-types:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all waste types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/response.WasteTypeResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get all waste types
+      tags:
+      - waste-types
+  /waste-types/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a specific waste type by its ID
+      parameters:
+      - description: Waste Type ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/response.WasteTypeResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/response.ErrorResponse'
+      summary: Get a waste type by ID
+      tags:
+      - waste-types
 schemes:
 - https
 - http

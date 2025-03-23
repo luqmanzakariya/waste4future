@@ -16,6 +16,8 @@ func NewWasteTypeHandler(useCase usecase.IWasteTypeUsecase) *WasteTypeHandler {
 	return &WasteTypeHandler{useCase: useCase}
 }
 
+// GetAllWasteTypes handles the HTTP GET request to retrieve all waste types.
+
 // GetAllWasteTypes godoc
 // @Summary Get all waste types
 // @Description Retrieve a list of all waste types
@@ -25,8 +27,6 @@ func NewWasteTypeHandler(useCase usecase.IWasteTypeUsecase) *WasteTypeHandler {
 // @Success 200 {array} response.WasteTypeResponse
 // @Failure 500 {object} response.ErrorResponse
 // @Router /waste-types [get]
-
-// GetAllWasteTypes handles the HTTP GET request to retrieve all waste types.
 func (h *WasteTypeHandler) GetAllWasteTypes(c echo.Context) error {
 	wasteTypes, err := h.useCase.FindAll(c.Request().Context())
 	if err != nil {
@@ -34,6 +34,8 @@ func (h *WasteTypeHandler) GetAllWasteTypes(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, wasteTypes)
 }
+
+// GetWasteTypeByID handles the HTTP GET request to retrieve a specific waste type by ID.
 
 // GetWasteTypeByID godoc
 // @Summary Get a waste type by ID
@@ -45,8 +47,6 @@ func (h *WasteTypeHandler) GetAllWasteTypes(c echo.Context) error {
 // @Success 200 {object} response.WasteTypeResponse
 // @Failure 404 {object} response.ErrorResponse
 // @Router /waste-types/{id} [get]
-
-// GetWasteTypeByID handles the HTTP GET request to retrieve a specific waste type by ID.
 func (h *WasteTypeHandler) GetWasteTypeByID(c echo.Context) error {
 	id := c.Param("id")
 	wasteType, err := h.useCase.FindById(c.Request().Context(), id)
