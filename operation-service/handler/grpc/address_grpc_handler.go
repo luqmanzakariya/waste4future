@@ -1,17 +1,17 @@
 package handler
 
 import (
-	"operation-service/model"
-	pb "operation-service/pb/address"
-	"operation-service/usecase"
 	"context"
+	"operation-service/model"
+	pbAddress "operation-service/pb/address"
+	"operation-service/usecase"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
 type AddressGRPCHandler struct {
-	pb.UnimplementedAddressServiceServer
+	pbAddress.UnimplementedAddressServiceServer
 	AddressUsecase usecase.IAddressUsecase
 }
 
@@ -21,7 +21,7 @@ func NewAddressGRPCHandler(addressUsecase usecase.IAddressUsecase) *AddressGRPCH
 	}
 }
 
-func (h *AddressGRPCHandler) CreateAddress(ctx context.Context, req *pb.CreateAddressRequest) (*pb.AddressResponse, error) {
+func (h *AddressGRPCHandler) CreateAddress(ctx context.Context, req *pbAddress.CreateAddressRequest) (*pbAddress.AddressResponse, error) {
 	payload := model.PayloadCreateAddress{
 		Name:      req.GetName(),
 		Latitude:  req.GetLatitude(),
@@ -33,7 +33,7 @@ func (h *AddressGRPCHandler) CreateAddress(ctx context.Context, req *pb.CreateAd
 		return nil, status.Errorf(codes.Internal, "failed to create address: %v", err)
 	}
 
-	return &pb.AddressResponse{
+	return &pbAddress.AddressResponse{
 		Id:        created.ID,
 		Name:      created.Name,
 		Latitude:  created.Latitude,
@@ -43,7 +43,7 @@ func (h *AddressGRPCHandler) CreateAddress(ctx context.Context, req *pb.CreateAd
 	}, nil
 }
 
-func (h *AddressGRPCHandler) GetAddressByID(ctx context.Context, req *pb.GetAddressByIDRequest) (*pb.AddressResponse, error) {
+func (h *AddressGRPCHandler) GetAddressByID(ctx context.Context, req *pbAddress.GetAddressByIDRequest) (*pbAddress.AddressResponse, error) {
 	id := req.GetId()
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "address ID is required")
@@ -54,7 +54,7 @@ func (h *AddressGRPCHandler) GetAddressByID(ctx context.Context, req *pb.GetAddr
 		return nil, status.Errorf(codes.Internal, "failed to get address: %v", err)
 	}
 
-	return &pb.AddressResponse{
+	return &pbAddress.AddressResponse{
 		Id:        data.ID,
 		Name:      data.Name,
 		Latitude:  data.Latitude,
@@ -64,15 +64,15 @@ func (h *AddressGRPCHandler) GetAddressByID(ctx context.Context, req *pb.GetAddr
 	}, nil
 }
 
-func (h *AddressGRPCHandler) GetAllAddresses(ctx context.Context, req *pb.GetAddressesRequest) (*pb.GetAddressesResponse, error) {
+func (h *AddressGRPCHandler) GetAllAddresses(ctx context.Context, req *pbAddress.GetAddressesRequest) (*pbAddress.GetAddressesResponse, error) {
 	addresses, err := h.AddressUsecase.FindAll(ctx)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "failed to get all addresses: %v", err)
 	}
 
-	var pbAddresses []*pb.AddressResponse
+	var pbAddressAddresses []*pbAddress.AddressResponse
 	for _, addr := range addresses {
-		pbAddresses = append(pbAddresses, &pb.AddressResponse{
+		pbAddressAddresses = append(pbAddressAddresses, &pbAddress.AddressResponse{
 			Id:        addr.ID.Hex(),
 			Name:      addr.Name,
 			Latitude:  addr.Latitude,
@@ -82,12 +82,12 @@ func (h *AddressGRPCHandler) GetAllAddresses(ctx context.Context, req *pb.GetAdd
 		})
 	}
 
-	return &pb.GetAddressesResponse{
-		Addresses: pbAddresses,
+	return &pbAddress.GetAddressesResponse{
+		Addresses: pbAddressAddresses,
 	}, nil
 }
 
-func (h *AddressGRPCHandler) UpdateAddress(ctx context.Context, req *pb.UpdateAddressRequest) (*pb.AddressResponse, error) {
+func (h *AddressGRPCHandler) UpdateAddress(ctx context.Context, req *pbAddress.UpdateAddressRequest) (*pbAddress.AddressResponse, error) {
 	id := req.GetId()
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "address ID is required")
@@ -104,7 +104,7 @@ func (h *AddressGRPCHandler) UpdateAddress(ctx context.Context, req *pb.UpdateAd
 		return nil, status.Errorf(codes.Internal, "failed to update address: %v", err)
 	}
 
-	return &pb.AddressResponse{
+	return &pbAddress.AddressResponse{
 		Id:        updated.ID,
 		Name:      updated.Name,
 		Latitude:  updated.Latitude,
@@ -114,7 +114,7 @@ func (h *AddressGRPCHandler) UpdateAddress(ctx context.Context, req *pb.UpdateAd
 	}, nil
 }
 
-func (h *AddressGRPCHandler) DeleteAddress(ctx context.Context, req *pb.DeleteAddressRequest) (*pb.DeleteAddressResponse, error) {
+func (h *AddressGRPCHandler) DeleteAddress(ctx context.Context, req *pbAddress.DeleteAddressRequest) (*pbAddress.DeleteAddressResponse, error) {
 	id := req.GetId()
 	if id == "" {
 		return nil, status.Error(codes.InvalidArgument, "address ID is required")
@@ -125,7 +125,7 @@ func (h *AddressGRPCHandler) DeleteAddress(ctx context.Context, req *pb.DeleteAd
 		return nil, status.Errorf(codes.Internal, "failed to delete address: %v", err)
 	}
 
-	return &pb.DeleteAddressResponse{
+	return &pbAddress.DeleteAddressResponse{
 		Success: true,
 		Message: "Address deleted successfully",
 	}, nil
