@@ -140,6 +140,10 @@ func StartCombinedServer(db *mongo.Database, errCh chan error) {
 	addressHTTPHandler := httpHandler.NewAddressHandler(addressUsecase)
 	addressHTTPHandler.InitRoutes(addressRoutes)
 
+	// # Dependency Injection Address
+	orderDetailRoutes := baseRoutes.Group("/order-details")
+	orderDetailRepo := repository.NewOrderDetailRepository(db)
+
 	// # Swagger documentation route
 	e.File("/swagger/doc.json", "docs/swagger.json")
 	e.File("/swagger/doc.yaml", "docs/swagger.yaml")
