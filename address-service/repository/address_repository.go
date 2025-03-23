@@ -25,7 +25,7 @@ type addressRepository struct {
 
 func NewAddressRepository(db *mongo.Database) IAddressRepository {
 	return &addressRepository{
-		AddressCollection: db.Collection("address"),
+		AddressCollection: db.Collection("addresses"),
 	}
 }
 
