@@ -9,14 +9,18 @@ import (
 
 	"recyclehub-service/handler/grpc"
 	"recyclehub-service/handler/http"
-	"recyclehub-service/middleware"
+	recyclehubMiddleware "recyclehub-service/middleware"
 	"recyclehub-service/repository"
 	"recyclehub-service/usecase"
 
 	pb "recyclehub-service/pb/recyclehub"
 
+	_ "recyclehub-service/docs"
+
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
+	echoSwagger "github.com/swaggo/echo-swagger"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	grpcLib "google.golang.org/grpc"
@@ -24,6 +28,15 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 )
 
+// @title RecycleHub Service API
+// @version 1.0
+// @description This is the API documentation for the RecycleHub Service.
+// @host http://localhost:8080
+// @schemes https http
+// @BasePath /
+// @SecurityDefinitions.apikey BearerAuth
+// @In header
+// @Name Authorization
 func main() {
 	// MongoDB connection setup
 	mongoURI := os.Getenv("MONGO_URI")
@@ -62,12 +75,20 @@ func main() {
 
 	// Initialize HTTP server
 	e := echo.New()
+
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	// swagger documentation route
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
+	log.Println("Swagger route registered at /swagger/*")
+
 	http.NewWasteTypeHandler(wasteTypeUseCase).RegisterRoutes(e)
 	http.NewRecycleHubHandler(recycleHubUseCase).RegisterRoutes(e)
 
 	// Initialize gRPC server with an interceptor (e.g., for authentication)
 	grpcServer := grpcLib.NewServer(
-		grpcLib.UnaryInterceptor(middleware.GrpcAuth), // Add your gRPC interceptor here
+		grpcLib.UnaryInterceptor(recyclehubMiddleware.GrpcAuth), // Add your gRPC interceptor here
 	)
 	pb.RegisterWasteTypeServiceServer(grpcServer, grpc.NewWasteTypeServer(wasteTypeUseCase))
 	pb.RegisterRecycleHubServiceServer(grpcServer, grpc.NewRecycleHubServer(recycleHubUseCase))
