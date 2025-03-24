@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package recycle_hub;
+
+option go_package = "pb/recycle_hub";
+
+service RecycleHubService {
+    rpc CreateRecycleHub(CreateRecycleHubRequest) returns (RecycleHubResponse) {}
+    rpc GetRecycleHubByID(GetRecycleHubByIDRequest) returns (RecycleHubResponse) {}
+    rpc GetAllRecycleHubs(GetRecycleHubsRequest) returns (GetRecycleHubsResponse) {}
+    rpc UpdateRecycleHub(UpdateRecycleHubRequest) returns (RecycleHubResponse) {}
+    rpc DeleteRecycleHub(DeleteRecycleHubRequest) returns (DeleteRecycleHubResponse) {}
+}
+
+service WasteTypeService {
+    rpc GetWasteTypeByID(GetWasteTypeByIDRequest) returns (WasteTypeResponse) {}
+    rpc GetAllWasteTypes(GetWasteTypesRequest) returns (GetWasteTypesResponse) {}
+}
+
+message CreateRecycleHubRequest {
+    string name = 1;
+    string phone = 2;
+    string address_id = 3;
+    string waste_type_id = 4;
+}
+
+message GetRecycleHubByIDRequest {
+    string id = 1;
+}
+
+message GetRecycleHubsRequest {}
+
+message GetRecycleHubsResponse {
+    repeated RecycleHubResponse recycle_hubs = 1;
+}
+
+message UpdateRecycleHubRequest {
+    string id = 1;
+    string name = 2;
+    string phone = 3;
+    string address_id = 4;
+    string waste_type_id = 5;
+}
+
+message DeleteRecycleHubRequest {
+    string id = 1;
+}
+
+message RecycleHubResponse {
+    string id = 1;
+    string name = 2;
+    string phone = 3;
+    string address_id = 4;
+    string waste_type_id = 5;
+    string created_at = 6;
+    string updated_at = 7;
+}
+
+message DeleteRecycleHubResponse {
+    bool success = 1;
+    string message = 2;
+}
+
+message GetWasteTypeByIDRequest {
+    string id = 1;
+}
+
+message GetWasteTypesRequest {}
+
+message GetWasteTypesResponse {
+    repeated WasteTypeResponse waste_types = 1;
+}
+
+message WasteTypeResponse {
+    string id = 1;
+    string name = 2;
+    double price = 3;
+    string created_at = 4;
+    string updated_at = 5;
+}

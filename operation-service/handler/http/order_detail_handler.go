@@ -3,7 +3,7 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"operation-service/middleware" // Assuming you have a similar middleware package
+	"operation-service/middleware"
 	"operation-service/model"
 	pbUser "operation-service/pb/user"
 	"operation-service/usecase"
@@ -43,10 +43,12 @@ func (h orderDetailHandler) InitRoutes(g *echo.Group) {
 // @Router /order-details [post]
 func (h orderDetailHandler) Create(c echo.Context) error {
 	token := c.Get("token").(string)
+	fmt.Println("=======Token: ", token)
 	ctx := metadata.AppendToOutgoingContext(c.Request().Context(), "authorization", token)
 
 	// Validate token and get user info
 	userResp, err := h.UserServiceClient.Validate(ctx, &pbUser.ValidateRequest{})
+	fmt.Println("=======userResp: ", userResp)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("User validation failed: %v", err))
 	}
@@ -55,6 +57,7 @@ func (h orderDetailHandler) Create(c echo.Context) error {
 	if err := c.Bind(&payload); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+	fmt.Println("=======payload: ", payload)
 
 	// Assuming userResp contains UserId (adjust based on your proto definition)
 	userID := int(userResp.ID) // Adjust this based on your ValidateResponse proto
@@ -63,6 +66,7 @@ func (h orderDetailHandler) Create(c echo.Context) error {
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+	fmt.Println("=======created: ", created)
 
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,

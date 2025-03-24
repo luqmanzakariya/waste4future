@@ -1,0 +1,23 @@
+{
+    "schemes": [
+        "https",
+        "http"
+    ],
+    "swagger": "2.0",
+    "info": {
+        "description": "This is the documentation of Recycle Service API including Address, RecycleHub, and WasteType services",
+        "title": "Recycle Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "recyclehub-service-84457363535.asia-southeast2.run.app",
+    "basePath": "/",
+    "paths": {},
+    "securityDefinitions": {
+        "BearerAuth": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
