@@ -31,6 +31,7 @@ type orderDetailUsecase struct {
 	OrderDetailRepo  repository.IOrderDetailRepository
 	AddressClient    pbAddress.AddressServiceClient
 	RecycleHubClient pbRecycle.RecycleHubServiceClient // Assumed client
+	WasteTypeClient  pbRecycle.WasteTypeServiceClient  // Assumed client
 	UserClient       pbUser.UserServiceClient          // Assumed client
 	Validate         *validator.Validate
 }
@@ -39,6 +40,7 @@ func NewOrderDetailUsecase(
 	orderDetailRepo repository.IOrderDetailRepository,
 	addressConn *grpc.ClientConn,
 	recycleHubConn *grpc.ClientConn,
+	wasteTypeConn *grpc.ClientConn,
 	userConn *grpc.ClientConn,
 	validate *validator.Validate,
 ) IOrderDetailUsecase {
@@ -46,6 +48,7 @@ func NewOrderDetailUsecase(
 		OrderDetailRepo:  orderDetailRepo,
 		AddressClient:    pbAddress.NewAddressServiceClient(addressConn),
 		RecycleHubClient: pbRecycle.NewRecycleHubServiceClient(recycleHubConn),
+		WasteTypeClient:  pbRecycle.NewWasteTypeServiceClient(wasteTypeConn),
 		UserClient:       pbUser.NewUserServiceClient(userConn),
 		Validate:         validate,
 	}
@@ -93,7 +96,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCr
 	}
 
 	// 3. Get recycle hub details and waste price
-	recycleResp, err := u.RecycleHubClient.GetRecycleByID(ctx, &pbRecycle.GetRecycleByIDRequest{
+	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{
 		Id: payload.RecycleHubID,
 	})
 	if err != nil {
@@ -104,7 +107,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCr
 	}
 
 	// 4. Get waste price from recyclehub service
-	wasteResp, err := u.RecycleHubClient.GetWasteByID(ctx, &pbRecycle.GetWasteByIDRequest{
+	wasteResp, err := u.WasteTypeClient.GetWasteTypeByID(ctx, &pbRecycle.GetWasteTypeByIDRequest{
 		Id: recycleResp.WasteTypeId,
 	})
 	if err != nil {
@@ -196,16 +199,17 @@ func (u *orderDetailUsecase) Update(ctx context.Context, id string, payload mode
 	}
 
 	// Get waste price
-	recycleResp, err := u.RecycleHubClient.GetRecycleByID(ctx, &pbRecycle.GetRecycleByIDRequest{
+	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{
 		Id: existing.RecycleHubID,
 	})
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch recycle hub: " + err.Error())
 	}
 
-	wasteResp, err := u.RecycleHubClient.GetWasteByID(ctx, &pbRecycle.GetWasteByIDRequest{
+	wasteResp, err := u.WasteTypeClient.GetWasteTypeByID(ctx, &pbRecycle.GetWasteTypeByIDRequest{
 		Id: recycleResp.WasteTypeId,
 	})
+
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch waste price: " + err.Error())
 	}

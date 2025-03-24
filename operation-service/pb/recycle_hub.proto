@@ -56,7 +56,7 @@ message CreateRecycleHubRequest {
     string name = 1;
     string phone = 2;
     string address_id = 3;
-    repeated string waste_type_id = 4;
+    string waste_type_id = 4;
 }
 
 // GetRecycleHubByIDRequest contains the ID of the recycle hub to retrieve.
@@ -70,7 +70,7 @@ message UpdateRecycleHubRequest {
     string name = 2;
     string phone = 3;
     string address_id = 4;
-    repeated string waste_type_id = 5;
+    string waste_type_id = 5;
 }
 
 // DeleteRecycleHubRequest contains the ID of the recycle hub to delete.
@@ -84,7 +84,7 @@ message RecycleHubResponse {
     string name = 2;
     string phone = 3;
     string address_id = 4;
-    repeated string waste_type_id = 5;
+    string waste_type_id = 5;
 }
 
 // RecycleHubList represents a list of recycle hubs.
