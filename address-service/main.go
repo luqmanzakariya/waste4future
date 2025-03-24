@@ -33,7 +33,7 @@ import (
 // @title Address Service API
 // @version 1.0
 // @description This is the documentation of Address Service API
-// @host address-service.example.com
+// @host https://address-service-84457363535.asia-southeast2.run.app/
 // @schemes https http
 // @BasePath /
 // @SecurityDefinitions.apikey BearerAuth

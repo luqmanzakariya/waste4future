@@ -10,7 +10,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "address-service.example.com",
+    "host": "https://address-service-84457363535.asia-southeast2.run.app/",
     "basePath": "/",
     "paths": {
         "/addresses": {
