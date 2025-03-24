@@ -31,7 +31,7 @@ import (
 // @title RecycleHub Service API
 // @version 1.0
 // @description This is the API documentation for the RecycleHub Service.
-// @host http://localhost:8080
+// @host https://recyclehub-service-84457363535.asia-southeast2.run.app/
 // @schemes https http
 // @BasePath /
 // @SecurityDefinitions.apikey BearerAuth

@@ -15,9 +15,7 @@ definitions:
         type: string
       waste_type_id:
         description: Waste type ID associated with the recycle hub
-        items:
-          type: string
-        type: array
+        type: string
     required:
     - address_id
     - name
@@ -39,9 +37,7 @@ definitions:
         type: string
       waste_type_id:
         description: Updated waste type ID associated with the recycle hub
-        items:
-          type: string
-        type: array
+        type: string
     required:
     - address_id
     - name
@@ -58,10 +54,9 @@ definitions:
   response.RecycleHubListResponse:
     properties:
       recycle_hubs:
+        allOf:
+        - $ref: '#/definitions/response.RecycleHubResponse'
         description: List of recycle hubs
-        items:
-          $ref: '#/definitions/response.RecycleHubResponse'
-        type: array
     type: object
   response.RecycleHubResponse:
     description: RecycleHubResponse represents a recycle hub with its ID, name, phone,
@@ -81,9 +76,7 @@ definitions:
         type: string
       waste_type_id:
         description: Waste type ID associated with the recycle hub
-        items:
-          type: string
-        type: array
+        type: string
     type: object
   response.SuccessResponse:
     description: SuccessResponse represents a success message.
@@ -106,7 +99,7 @@ definitions:
         description: Price of the waste type
         type: number
     type: object
-host: http://localhost:8080
+host: https://recyclehub-service-84457363535.asia-southeast2.run.app/
 info:
   contact: {}
   description: This is the API documentation for the RecycleHub Service.

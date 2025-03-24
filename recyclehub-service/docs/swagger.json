@@ -10,7 +10,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "http://localhost:8080",
+    "host": "https://recyclehub-service-84457363535.asia-southeast2.run.app/",
     "basePath": "/",
     "paths": {
         "/recycle-hubs": {
@@ -307,10 +307,7 @@
                 },
                 "waste_type_id": {
                     "description": "Waste type ID associated with the recycle hub",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 }
             }
         },
@@ -338,10 +335,7 @@
                 },
                 "waste_type_id": {
                     "description": "Updated waste type ID associated with the recycle hub",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 }
             }
         },
@@ -360,10 +354,11 @@
             "properties": {
                 "recycle_hubs": {
                     "description": "List of recycle hubs",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.RecycleHubResponse"
-                    }
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.RecycleHubResponse"
+                        }
+                    ]
                 }
             }
         },
@@ -389,10 +384,7 @@
                 },
                 "waste_type_id": {
                     "description": "Waste type ID associated with the recycle hub",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 }
             }
         },

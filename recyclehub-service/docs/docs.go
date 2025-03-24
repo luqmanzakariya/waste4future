@@ -309,10 +309,7 @@ const docTemplate = `{
                 },
                 "waste_type_id": {
                     "description": "Waste type ID associated with the recycle hub",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 }
             }
         },
@@ -340,10 +337,7 @@ const docTemplate = `{
                 },
                 "waste_type_id": {
                     "description": "Updated waste type ID associated with the recycle hub",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 }
             }
         },
@@ -362,10 +356,11 @@ const docTemplate = `{
             "properties": {
                 "recycle_hubs": {
                     "description": "List of recycle hubs",
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/response.RecycleHubResponse"
-                    }
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/response.RecycleHubResponse"
+                        }
+                    ]
                 }
             }
         },
@@ -391,10 +386,7 @@ const docTemplate = `{
                 },
                 "waste_type_id": {
                     "description": "Waste type ID associated with the recycle hub",
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                    "type": "string"
                 }
             }
         },
@@ -439,7 +431,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "http://localhost:8080",
+	Host:             "https://recyclehub-service-84457363535.asia-southeast2.run.app/",
 	BasePath:         "/",
 	Schemes:          []string{"https", "http"},
 	Title:            "RecycleHub Service API",
