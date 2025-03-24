@@ -9,6 +9,7 @@ import (
 
 	"operation-service/config"
 	_ "operation-service/docs"
+	handler "operation-service/handler/http"
 	httpHandler "operation-service/handler/http"
 	"operation-service/middleware"
 	"operation-service/repository"
@@ -16,13 +17,13 @@ import (
 	"operation-service/utils"
 
 	userPB "operation-service/pb/user"
-	// addressPB "operation-service/pb/address"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
+
 	// "go.mongodb.org/mongo-driver/v2/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -55,7 +56,8 @@ func main() {
 
 	// ===== GRPC Client Section =====
 	userGrpcUrl := os.Getenv("USER_GRPC_SERVICE_URL")
-	// addressGrpcUrl := os.Getenv("ADDRESS_GRPC_SERVICE_URL")
+	addressGrpcUrl := os.Getenv("ADDRESS_GRPC_SERVICE_URL")
+	recyclehubGrpcUrl := os.Getenv("RECYCLEHUB_GRPC_SERVICE_URL")
 
 	// Set up TLS credentials
 	creds := credentials.NewTLS(&tls.Config{
@@ -70,15 +72,21 @@ func main() {
 	defer userConn.Close()
 
 	// Dial Address gRPC server with TLS
-	// addressConn, err := grpc.NewClient(addressGrpcUrl, grpc.WithTransportCredentials(creds))
-	// if err != nil {
-	// 	log.Fatalf("Failed to connect to gRPC server: %v", err)
-	// }
-	// defer addressConn.Close()
+	addressConn, err := grpc.NewClient(addressGrpcUrl, grpc.WithTransportCredentials(creds))
+	if err != nil {
+		log.Fatalf("Failed to connect to gRPC server: %v", err)
+	}
+	defer addressConn.Close()
+
+	// Dial Recyclehub gRPC server with TLS
+	recyclehubConn, err := grpc.NewClient(recyclehubGrpcUrl, grpc.WithTransportCredentials(creds))
+	if err != nil {
+		log.Fatalf("Failed to connect to gRPC server: %v", err)
+	}
+	defer recyclehubConn.Close()
 
 	// Create a gRPC client
 	userGrpcClient := userPB.NewUserServiceClient(userConn)
-	// addressGrpcClient := addressPB.NewAddressServiceClient(addressConn)
 	// ===============================
 
 	// # Initialize Echo
@@ -126,8 +134,19 @@ func main() {
 	orderHttpHandler.InitRoutes(orderRoutes)
 
 	// # Dependency Injection Order Detail
-	// orderDetailRoutes := baseRoutes.Group("/order-details")
-	// orderDetailRepo := repository.NewOrderDetailRepository(db)
+	orderDetailRoutes := baseRoutes.Group("/order-details")
+	orderDetailRepo := repository.NewOrderDetailRepository(db)
+	orderDetailUsecase := usecase.NewOrderDetailUsecase(
+		orderDetailRepo,
+		orderRepo,
+		addressConn,
+		recyclehubConn,
+		recyclehubConn,
+		userConn,
+		validator,
+	)
+	orderDetailHttpHandler := handler.NewOrderDetailHandler(orderDetailUsecase, userGrpcClient)
+	orderDetailHttpHandler.InitRoutes(orderDetailRoutes)
 
 	// # Swagger documentation route
 	e.File("/swagger/doc.json", "docs/swagger.json")
