@@ -10,7 +10,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "address-service-84457363535.asia-southeast2.run.app",
+    "host": "address-service-84457363535.asia-southeast2.run.app/api",
     "basePath": "/",
     "paths": {
         "/addresses": {
