@@ -28,6 +28,7 @@ type IOrderDetailUsecase interface {
 
 type orderDetailUsecase struct {
 	OrderDetailRepo  repository.IOrderDetailRepository
+	OrderRepo        repository.IOrderRepository
 	AddressClient    pbAddress.AddressServiceClient
 	RecycleHubClient pbRecycle.RecycleHubServiceClient
 	WasteTypeClient  pbRecycle.WasteTypeServiceClient
@@ -37,6 +38,7 @@ type orderDetailUsecase struct {
 
 func NewOrderDetailUsecase(
 	orderDetailRepo repository.IOrderDetailRepository,
+	orderRepo repository.IOrderRepository,
 	addressConn *grpc.ClientConn,
 	recycleHubConn *grpc.ClientConn,
 	wasteTypeConn *grpc.ClientConn,
@@ -45,6 +47,7 @@ func NewOrderDetailUsecase(
 ) IOrderDetailUsecase {
 	return &orderDetailUsecase{
 		OrderDetailRepo:  orderDetailRepo,
+		OrderRepo:        orderRepo,
 		AddressClient:    pbAddress.NewAddressServiceClient(addressConn),
 		RecycleHubClient: pbRecycle.NewRecycleHubServiceClient(recycleHubConn),
 		WasteTypeClient:  pbRecycle.NewWasteTypeServiceClient(wasteTypeConn),
@@ -70,7 +73,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, err
 	}
 
-	// Get origin address
+	// 1.a Get origin address
 	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.OriginAddressID})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -79,7 +82,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch origin address: " + err.Error())
 	}
 
-	// Get destination address
+	// 1.b Get destination address
 	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.DestinationAddressID})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -88,7 +91,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch destination address: " + err.Error())
 	}
 
-	// Get recycle hub details
+	// 2.a Get recycle hub details
 	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{Id: payload.RecycleHubID})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -97,7 +100,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch recycle hub: " + err.Error())
 	}
 
-	// Get waste price
+	// 2.b Get waste price
 	wasteResp, err := u.WasteTypeClient.GetWasteTypeByID(ctx, &pbRecycle.GetWasteTypeByIDRequest{Id: recycleResp.WasteTypeId})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
@@ -106,7 +109,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch waste price: " + err.Error())
 	}
 
-	// Convert coordinates
+	// 1.c Convert coordinates
 	originLat, err := strconv.ParseFloat(originResp.Latitude, 64)
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("invalid origin latitude")
@@ -124,11 +127,11 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, errors.New("invalid destination longitude")
 	}
 
-	// Calculate delivery price
+	// 1.d Calculate delivery price
 	distance := calculateDistance(originLat, originLon, destLat, destLon)
 	deliveryPrice := distance * 15000 // 15,000 per km
 
-	// Calculate subtotal
+	// 2.c Calculate subtotal
 	subTotal := payload.WasteWeight * wasteResp.Price
 
 	orderDetail := model.OrderDetail{
@@ -146,6 +149,12 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 	res, err := u.OrderDetailRepo.Create(ctx, orderDetail)
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("failed to create order detail: " + err.Error())
+	}
+
+	// Save the order detail ID to the user's draft order
+	err = u.OrderRepo.SaveOrderDetail(ctx, res.ID.Hex(), int64(userID))
+	if err != nil {
+		return model.ResponseOrderDetail{}, errors.New("failed to save order detail to order: " + err.Error())
 	}
 
 	return model.ResponseOrderDetail{
