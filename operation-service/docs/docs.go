@@ -15,19 +15,19 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/addresses": {
+        "/api/orders": {
             "get": {
-                "description": "Find All Addresses",
+                "description": "Find All Orders",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Orders"
                 ],
-                "summary": "FindAll Address",
+                "summary": "FindAll Orders",
                 "responses": {
                     "200": {
-                        "description": "Address list",
+                        "description": "Order list",
                         "schema": {
                             "allOf": [
                                 {
@@ -39,7 +39,7 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.Address"
+                                                "$ref": "#/definitions/model.Order"
                                             }
                                         }
                                     }
@@ -77,28 +77,28 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Add and register new Address",
+                "description": "Add and register new Order",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Orders"
                 ],
-                "summary": "Create an Addressa",
+                "summary": "Create an Order",
                 "parameters": [
                     {
-                        "description": "create address payload",
+                        "description": "create order payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PayloadCreateAddress"
+                            "$ref": "#/definitions/model.PayloadCreateOrder"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Address created",
+                        "description": "Order created",
                         "schema": {
                             "allOf": [
                                 {
@@ -108,7 +108,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.ResponseAddress"
+                                            "$ref": "#/definitions/model.ResponseOrder"
                                         }
                                     }
                                 }
@@ -140,16 +140,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/addresses/{id}": {
+        "/api/orders/{id}": {
             "get": {
-                "description": "Find Address By ID",
+                "description": "Find Order By ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Orders"
                 ],
-                "summary": "FindById an Address",
+                "summary": "FindById an Order",
                 "parameters": [
                     {
                         "type": "string",
@@ -172,7 +172,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.ResponseAddress"
+                                            "$ref": "#/definitions/model.ResponseOrder"
                                         }
                                     }
                                 }
@@ -231,36 +231,36 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update Address By ID",
+                "description": "Update Order By ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Orders"
                 ],
-                "summary": "Update an Address",
+                "summary": "Update an Order",
                 "parameters": [
                     {
                         "type": "string",
                         "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "address id",
+                        "description": "order id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "update address payload",
+                        "description": "update order payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PayloadUpdateAddress"
+                            "$ref": "#/definitions/model.PayloadUpdateOrder"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Address updated",
+                        "description": "Order updated",
                         "schema": {
                             "allOf": [
                                 {
@@ -270,7 +270,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.ResponseAddress"
+                                            "$ref": "#/definitions/model.ResponseOrder"
                                         }
                                     }
                                 }
@@ -329,19 +329,19 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete Address By ID",
+                "description": "Delete Order By ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Orders"
                 ],
-                "summary": "DeleteById an Address",
+                "summary": "DeleteById an Order",
                 "parameters": [
                     {
                         "type": "string",
                         "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "address id",
+                        "description": "order id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -349,7 +349,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Address deleted",
+                        "description": "Order deleted",
                         "schema": {
                             "allOf": [
                                 {
@@ -412,101 +412,499 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/order-details": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add and register new order detail",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Create an Order Detail",
+                "parameters": [
+                    {
+                        "description": "create order detail payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadCreateOrderDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/order-details/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Find an Order Detail by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Update an Order Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update order detail payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadUpdateOrderDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Delete an Order Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail deleted",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "model.Address": {
+        "model.Order": {
             "type": "object",
             "properties": {
                 "created_at": {
                     "type": "string"
                 },
+                "driver_id": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "latitude": {
+                "note": {
                     "type": "string"
                 },
-                "longitude": {
+                "order_date": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
+                "order_detail_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "order_status": {
+                    "$ref": "#/definitions/model.OrderStatus"
+                },
+                "shipping_status": {
+                    "$ref": "#/definitions/model.ShippingStatus"
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "updated_shipping": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
                 }
             }
         },
-        "model.PayloadCreateAddress": {
-            "description": "PayloadCreateAddress details.",
+        "model.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "paid",
+                "rejected"
+            ],
+            "x-enum-varnames": [
+                "OrderStatusPending",
+                "OrderStatusPaid",
+                "OrderStatusRejected"
+            ]
+        },
+        "model.PayloadCreateOrder": {
+            "description": "PayloadCreateOrder details.",
+            "type": "object",
+            "properties": {
+                "note": {
+                    "type": "string",
+                    "example": "mohon hati hati karena terdapat barang pecah belah"
+                }
+            }
+        },
+        "model.PayloadCreateOrderDetail": {
             "type": "object",
             "required": [
-                "latitude",
-                "longitude",
-                "name"
+                "destination_address_id",
+                "origin_address_id",
+                "recycle_hub_id",
+                "waste_weight"
             ],
             "properties": {
-                "latitude": {
+                "destination_address_id": {
+                    "type": "string"
+                },
+                "origin_address_id": {
+                    "type": "string"
+                },
+                "recycle_hub_id": {
+                    "type": "string"
+                },
+                "waste_weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.PayloadUpdateOrder": {
+            "description": "PayloadUpdateOrder details.",
+            "type": "object",
+            "properties": {
+                "note": {
                     "type": "string",
                     "example": "40.7128"
                 },
-                "longitude": {
-                    "type": "string",
-                    "example": "-74.0060"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Home"
+                "orderDetailIDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 }
             }
         },
-        "model.PayloadUpdateAddress": {
-            "description": "PayloadUpdateAddress details.",
+        "model.PayloadUpdateOrderDetail": {
             "type": "object",
             "required": [
-                "latitude",
-                "longitude",
-                "name"
+                "destination_address_id",
+                "origin_address_id",
+                "waste_weight"
             ],
             "properties": {
-                "latitude": {
-                    "type": "string",
-                    "example": "40.7128"
+                "destination_address_id": {
+                    "type": "string"
                 },
-                "longitude": {
-                    "type": "string",
-                    "example": "-74.0060"
+                "origin_address_id": {
+                    "type": "string"
                 },
-                "name": {
-                    "type": "string",
-                    "example": "Office"
+                "waste_weight": {
+                    "type": "number"
                 }
             }
         },
-        "model.ResponseAddress": {
-            "description": "ResponseAddress details.",
+        "model.ResponseOrder": {
+            "description": "ResponseOrder details.",
             "type": "object",
             "properties": {
                 "created_at": {
                     "type": "string"
                 },
+                "driver_id": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },
-                "latitude": {
+                "note": {
                     "type": "string"
                 },
-                "longitude": {
+                "order_date": {
                     "type": "string"
                 },
-                "name": {
-                    "type": "string"
+                "order_detail_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "order_status": {
+                    "$ref": "#/definitions/model.OrderStatus"
+                },
+                "shipping_status": {
+                    "$ref": "#/definitions/model.ShippingStatus"
                 },
                 "updated_at": {
                     "type": "string"
+                },
+                "updated_shipping": {
+                    "type": "string"
                 }
             }
+        },
+        "model.ResponseOrderDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "delivery_price": {
+                    "type": "number"
+                },
+                "destination_address_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "origin_address_id": {
+                    "type": "string"
+                },
+                "recycle_hub_id": {
+                    "type": "string"
+                },
+                "sub_total": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "waste_weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.ShippingStatus": {
+            "type": "string",
+            "enum": [
+                "pickup",
+                "delivery",
+                "finish"
+            ],
+            "x-enum-varnames": [
+                "ShippingStatusPickup",
+                "ShippingStatusDelivery",
+                "ShippingStatusFinish"
+            ]
         },
         "model.WebResponse": {
             "description": "represents the standard API response format.",
@@ -534,11 +932,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "operation-service.example.com",
+	Host:             "localhost:8080",
 	BasePath:         "/",
-	Schemes:          []string{"https", "http"},
-	Title:            "Address Service API",
-	Description:      "This is the documentation of Address Service API",
+	Schemes:          []string{"http", "https"},
+	Title:            "Operation Service API",
+	Description:      "This is the documentation of Operation Service API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

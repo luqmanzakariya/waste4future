@@ -1,70 +1,148 @@
 basePath: /
 definitions:
-  model.Address:
+  model.Order:
     properties:
       created_at:
         type: string
+      driver_id:
+        type: string
       id:
         type: string
-      latitude:
+      note:
         type: string
-      longitude:
+      order_date:
         type: string
-      name:
-        type: string
+      order_detail_ids:
+        items:
+          type: string
+        type: array
+      order_status:
+        $ref: '#/definitions/model.OrderStatus'
+      shipping_status:
+        $ref: '#/definitions/model.ShippingStatus'
       updated_at:
         type: string
+      updated_shipping:
+        type: string
+      user_id:
+        type: integer
     type: object
-  model.PayloadCreateAddress:
-    description: PayloadCreateAddress details.
+  model.OrderStatus:
+    enum:
+    - pending
+    - paid
+    - rejected
+    type: string
+    x-enum-varnames:
+    - OrderStatusPending
+    - OrderStatusPaid
+    - OrderStatusRejected
+  model.PayloadCreateOrder:
+    description: PayloadCreateOrder details.
     properties:
-      latitude:
+      note:
+        example: mohon hati hati karena terdapat barang pecah belah
+        type: string
+    type: object
+  model.PayloadCreateOrderDetail:
+    properties:
+      destination_address_id:
+        type: string
+      origin_address_id:
+        type: string
+      recycle_hub_id:
+        type: string
+      waste_weight:
+        type: number
+    required:
+    - destination_address_id
+    - origin_address_id
+    - recycle_hub_id
+    - waste_weight
+    type: object
+  model.PayloadUpdateOrder:
+    description: PayloadUpdateOrder details.
+    properties:
+      note:
         example: "40.7128"
         type: string
-      longitude:
-        example: "-74.0060"
-        type: string
-      name:
-        example: Home
-        type: string
-    required:
-    - latitude
-    - longitude
-    - name
+      orderDetailIDs:
+        items:
+          type: string
+        type: array
     type: object
-  model.PayloadUpdateAddress:
-    description: PayloadUpdateAddress details.
+  model.PayloadUpdateOrderDetail:
     properties:
-      latitude:
-        example: "40.7128"
+      destination_address_id:
         type: string
-      longitude:
-        example: "-74.0060"
+      origin_address_id:
         type: string
-      name:
-        example: Office
-        type: string
+      waste_weight:
+        type: number
     required:
-    - latitude
-    - longitude
-    - name
+    - destination_address_id
+    - origin_address_id
+    - waste_weight
     type: object
-  model.ResponseAddress:
-    description: ResponseAddress details.
+  model.ResponseOrder:
+    description: ResponseOrder details.
     properties:
       created_at:
         type: string
+      driver_id:
+        type: string
       id:
         type: string
-      latitude:
+      note:
         type: string
-      longitude:
+      order_date:
         type: string
-      name:
-        type: string
+      order_detail_ids:
+        items:
+          type: string
+        type: array
+      order_status:
+        $ref: '#/definitions/model.OrderStatus'
+      shipping_status:
+        $ref: '#/definitions/model.ShippingStatus'
       updated_at:
         type: string
+      updated_shipping:
+        type: string
     type: object
+  model.ResponseOrderDetail:
+    properties:
+      created_at:
+        type: string
+      delivery_price:
+        type: number
+      destination_address_id:
+        type: string
+      id:
+        type: string
+      origin_address_id:
+        type: string
+      recycle_hub_id:
+        type: string
+      sub_total:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      waste_weight:
+        type: number
+    type: object
+  model.ShippingStatus:
+    enum:
+    - pickup
+    - delivery
+    - finish
+    type: string
+    x-enum-varnames:
+    - ShippingStatusPickup
+    - ShippingStatusDelivery
+    - ShippingStatusFinish
   model.WebResponse:
     description: represents the standard API response format.
     properties:
@@ -74,28 +152,28 @@ definitions:
       status:
         type: string
     type: object
-host: operation-service.example.com
+host: localhost:8080
 info:
   contact: {}
-  description: This is the documentation of Address Service API
-  title: Address Service API
+  description: This is the documentation of Operation Service API
+  title: Operation Service API
   version: "1.0"
 paths:
-  /addresses:
+  /api/orders:
     get:
-      description: Find All Addresses
+      description: Find All Orders
       produces:
       - application/json
       responses:
         "200":
-          description: Address list
+          description: Order list
           schema:
             allOf:
             - $ref: '#/definitions/model.WebResponse'
             - properties:
                 data:
                   items:
-                    $ref: '#/definitions/model.Address'
+                    $ref: '#/definitions/model.Order'
                   type: array
               type: object
         "500":
@@ -110,29 +188,29 @@ paths:
                 status:
                   type: string
               type: object
-      summary: FindAll Address
+      summary: FindAll Orders
       tags:
-      - Address
+      - Orders
     post:
-      description: Add and register new Address
+      description: Add and register new Order
       parameters:
-      - description: create address payload
+      - description: create order payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/model.PayloadCreateAddress'
+          $ref: '#/definitions/model.PayloadCreateOrder'
       produces:
       - application/json
       responses:
         "200":
-          description: Address created
+          description: Order created
           schema:
             allOf:
             - $ref: '#/definitions/model.WebResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/model.ResponseAddress'
+                  $ref: '#/definitions/model.ResponseOrder'
               type: object
         "400":
           description: Bad Request
@@ -148,14 +226,14 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: Create an Addressa
+      summary: Create an Order
       tags:
-      - Address
-  /addresses/{id}:
+      - Orders
+  /api/orders/{id}:
     delete:
-      description: Delete Address By ID
+      description: Delete Order By ID
       parameters:
-      - description: address id
+      - description: order id
         example: '"67cdcb62a50a990a870d928f"'
         in: path
         name: id
@@ -165,7 +243,7 @@ paths:
       - application/json
       responses:
         "200":
-          description: Address deleted
+          description: Order deleted
           schema:
             allOf:
             - $ref: '#/definitions/model.WebResponse'
@@ -199,11 +277,11 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: DeleteById an Address
+      summary: DeleteById an Order
       tags:
-      - Address
+      - Orders
     get:
-      description: Find Address By ID
+      description: Find Order By ID
       parameters:
       - description: address id
         example: '"67cdcb62a50a990a870d928f"'
@@ -221,7 +299,7 @@ paths:
             - $ref: '#/definitions/model.WebResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/model.ResponseAddress'
+                  $ref: '#/definitions/model.ResponseOrder'
               type: object
         "400":
           description: Bad Request
@@ -247,35 +325,35 @@ paths:
                 status:
                   type: string
               type: object
-      summary: FindById an Address
+      summary: FindById an Order
       tags:
-      - Address
+      - Orders
     put:
-      description: Update Address By ID
+      description: Update Order By ID
       parameters:
-      - description: address id
+      - description: order id
         example: '"67cdcb62a50a990a870d928f"'
         in: path
         name: id
         required: true
         type: string
-      - description: update address payload
+      - description: update order payload
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/model.PayloadUpdateAddress'
+          $ref: '#/definitions/model.PayloadUpdateOrder'
       produces:
       - application/json
       responses:
         "200":
-          description: Address updated
+          description: Order updated
           schema:
             allOf:
             - $ref: '#/definitions/model.WebResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/model.ResponseAddress'
+                  $ref: '#/definitions/model.ResponseOrder'
               type: object
         "400":
           description: Bad Request
@@ -303,12 +381,172 @@ paths:
               type: object
       security:
       - BearerAuth: []
-      summary: Update an Address
+      summary: Update an Order
       tags:
-      - Address
+      - Orders
+  /order-details:
+    post:
+      description: Add and register new order detail
+      parameters:
+      - description: create order detail payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateOrderDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create an Order Detail
+      tags:
+      - OrderDetail
+  /order-details/{id}:
+    delete:
+      description: Delete order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Delete an Order Detail
+      tags:
+      - OrderDetail
+    get:
+      description: Find order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail found
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Find an Order Detail by ID
+      tags:
+      - OrderDetail
+    put:
+      description: Update order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update order detail payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateOrderDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update an Order Detail
+      tags:
+      - OrderDetail
 schemes:
-- https
 - http
+- https
 securityDefinitions:
   BearerAuth:
     in: header

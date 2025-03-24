@@ -7,16 +7,21 @@ import (
 	"operation-service/model"
 	"operation-service/usecase"
 
+	userPB "operation-service/pb/user"
+
 	"github.com/labstack/echo/v4"
+	"google.golang.org/grpc/metadata"
 )
 
 type orderHandler struct {
-	OrderUsecase usecase.IOrderUsecase
+	OrderUsecase   usecase.IOrderUsecase
+	UserGrpcClient userPB.UserServiceClient
 }
 
-func NewOrderHandler(orderUsecase usecase.IOrderUsecase) orderHandler {
+func NewOrderHandler(orderUsecase usecase.IOrderUsecase, userServiceClient userPB.UserServiceClient) orderHandler {
 	return orderHandler{
-		OrderUsecase: orderUsecase,
+		OrderUsecase:   orderUsecase,
+		UserGrpcClient: userServiceClient,
 	}
 }
 
@@ -34,10 +39,10 @@ func (o orderHandler) InitRoutes(g *echo.Group) {
 // @Tags Orders
 // @Produce json
 // @Param	request	body model.PayloadCreateOrder true "create order payload"
-// @Success 200 {object} model.WebResponse{data=model.ResponseAddress} "Order created"
+// @Success 200 {object} model.WebResponse{data=model.ResponseOrder} "Order created"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Security BearerAuth
-// @Router /orders [post]
+// @Router /api/orders [post]
 func (o orderHandler) Create(c echo.Context) error {
 	var payloadCreateOrder model.PayloadCreateOrder
 	err := c.Bind(&payloadCreateOrder)
@@ -64,9 +69,9 @@ func (o orderHandler) Create(c echo.Context) error {
 // @Description Find All Orders
 // @Tags Orders
 // @Produce json
-// @Success 200 {object} model.WebResponse{data=[]model.Address} "Address list"
+// @Success 200 {object} model.WebResponse{data=[]model.Order} "Order list"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
-// @Router /orders [get]
+// @Router /api/orders [get]
 func (o orderHandler) FindAll(c echo.Context) error {
 	orders, err := o.OrderUsecase.FindAll(c.Request().Context())
 	if err != nil {
@@ -91,7 +96,7 @@ func (o orderHandler) FindAll(c echo.Context) error {
 // @Success 200 {object} model.WebResponse{data=model.ResponseOrder} "Address found"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
-// @Router /order/{id} [get]
+// @Router /api/orders/{id} [get]
 func (o orderHandler) FindByID(c echo.Context) error {
 	// # Get ID Params
 	id := c.Param("id")
@@ -121,7 +126,7 @@ func (o orderHandler) FindByID(c echo.Context) error {
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
 // @Security BearerAuth
-// @Router /orders/{id} [PUT]
+// @Router /api/orders/{id} [PUT]
 func (o orderHandler) Update(c echo.Context) error {
 	// # Get ID Params
 	id := c.Param("id")
@@ -156,22 +161,40 @@ func (o orderHandler) Update(c echo.Context) error {
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
 // @Security BearerAuth
-// @Router /orders/{id} [DELETE]
+// @Router /api/orders/{id} [DELETE]
 func (o orderHandler) Delete(c echo.Context) error {
-	// # Get ID Params
-	id := c.Param("id")
+	token := c.Get("token").(string)
+	fmt.Println("disini ada token", token)
 
-	err := o.OrderUsecase.Delete(c.Request().Context(), id)
+	// Create a context with the Authorization header for gRPC
+	ctx := metadata.AppendToOutgoingContext(c.Request().Context(), "authorization", token)
+
+	userInfo, err := o.UserGrpcClient.Validate(ctx, &userPB.ValidateRequest{})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("User validation failed: %v", err))
 	}
 
-	res := fmt.Sprintf("success deleted order with id: %s", id)
+	fmt.Println("----", userInfo.ID)
+	fmt.Println("----", userInfo.Email)
+	fmt.Println("----", userInfo.Name)
+	fmt.Println("----", userInfo.AddressID)
+
+	// # USER Info disini yang nantinya bisa dipakai
+
+	// // # Get ID Params
+	// id := c.Param("id")
+
+	// err = o.OrderUsecase.Delete(ctx, id)
+	// if err != nil {
+	// 	return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	// }
+
+	// res := fmt.Sprintf("success deleted order with id: %s", id)
 
 	webResponse := model.WebResponse{
 		Code:   http.StatusOK,
 		Status: "OK",
-		Data:   res,
+		// Data:   res,
 	}
 
 	return c.JSON(http.StatusOK, webResponse)

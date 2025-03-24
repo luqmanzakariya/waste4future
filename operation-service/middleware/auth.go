@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"operation-service/utils"
 	"net/http"
 	"strings"
 
@@ -16,12 +15,7 @@ func AuthMiddleware(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusUnauthorized, "unauthorized")
 		}
 
-		id, err := utils.ValidateJWT(token)
-		if err != nil {
-			return echo.NewHTTPError(http.StatusUnauthorized, "Unauthorized")
-		}
-
-		c.Set("id", id)
+		c.Set("token", token)
 
 		// # Call the next handler if authentication is successful
 		return next(c)

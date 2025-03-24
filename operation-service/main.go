@@ -2,39 +2,37 @@ package main
 
 import (
 	"context"
-	"fmt"
+	"crypto/tls"
 	"log"
-	"net"
 	"net/http"
 	"os"
-	"os/signal"
 
 	"operation-service/config"
-	// _ "operation-service/docs"
-	grpcHandler "operation-service/handler/grpc"
+	_ "operation-service/docs"
 	httpHandler "operation-service/handler/http"
 	"operation-service/middleware"
 	"operation-service/repository"
 	"operation-service/usecase"
 	"operation-service/utils"
 
-	pb "operation-service/pb/address"
+	userPB "operation-service/pb/user"
+	// addressPB "operation-service/pb/address"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
-	"github.com/soheilhy/cmux"
 	echoSwagger "github.com/swaggo/echo-swagger"
-	"go.mongodb.org/mongo-driver/v2/mongo"
+	// "go.mongodb.org/mongo-driver/v2/mongo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 // @title Operation Service API
 // @version 1.0
 // @description This is the documentation of Operation Service API
-// @host operation-service.example.com
-// @schemes https http
+// @host localhost:8080
+// @schemes http https
 // @BasePath /
 // @SecurityDefinitions.apikey BearerAuth
 // @In header
@@ -55,53 +53,33 @@ func main() {
 		}
 	}()
 
-	sigCh := make(chan os.Signal, 1)
-	errCh := make(chan error, 1)
-	quitCh := make(chan bool, 1)
-	signal.Notify(sigCh, os.Interrupt)
+	// ===== GRPC Client Section =====
+	userGrpcUrl := os.Getenv("USER_GRPC_SERVICE_URL")
+	// addressGrpcUrl := os.Getenv("ADDRESS_GRPC_SERVICE_URL")
 
-	go func() {
-		for {
-			select {
-			case <-sigCh:
-				quitCh <- true
-			case err := <-errCh:
-				log.Fatal(err)
-				quitCh <- true
-			}
-		}
-	}()
+	// Set up TLS credentials
+	creds := credentials.NewTLS(&tls.Config{
+		InsecureSkipVerify: false, // Set to true only for testing with self-signed certificates
+	})
 
-	// Start the combined HTTP/gRPC server
-	go func() {
-		StartCombinedServer(db, errCh)
-	}()
-
-	<-quitCh
-	fmt.Println("exiting program...")
-}
-
-func StartCombinedServer(db *mongo.Database, errCh chan error) {
-	// # Get PORT from ENV
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	// Create a TCP listener
-	lis, err := net.Listen("tcp", ":"+port)
+	// Dial User gRPC server with TLS
+	userConn, err := grpc.NewClient(userGrpcUrl, grpc.WithTransportCredentials(creds))
 	if err != nil {
-		errCh <- fmt.Errorf("failed to listen: %v", err)
-		return
+		log.Fatalf("Failed to connect to gRPC server: %v", err)
 	}
+	defer userConn.Close()
 
-	// Create a cmux multiplexer
-	m := cmux.New(lis)
+	// Dial Address gRPC server with TLS
+	// addressConn, err := grpc.NewClient(addressGrpcUrl, grpc.WithTransportCredentials(creds))
+	// if err != nil {
+	// 	log.Fatalf("Failed to connect to gRPC server: %v", err)
+	// }
+	// defer addressConn.Close()
 
-	// Match HTTP requests
-	httpL := m.Match(cmux.HTTP1Fast())
-	// Match gRPC requests
-	grpcL := m.Match(cmux.Any())
+	// Create a gRPC client
+	userGrpcClient := userPB.NewUserServiceClient(userConn)
+	// addressGrpcClient := addressPB.NewAddressServiceClient(addressConn)
+	// ===============================
 
 	// # Initialize Echo
 	e := echo.New()
@@ -133,50 +111,31 @@ func StartCombinedServer(db *mongo.Database, errCh chan error) {
 	// # Base Routes
 	baseRoutes := e.Group("/api")
 
-	// # Dependency Injection Address
-	addressRoutes := baseRoutes.Group("/addresses")
-	addressRepo := repository.NewAddressRepository(db)
-	addressUsecase := usecase.NewAddressUsecase(addressRepo, validator)
-	addressHTTPHandler := httpHandler.NewAddressHandler(addressUsecase)
-	addressHTTPHandler.InitRoutes(addressRoutes)
-
-	// # Dependency Injection Address
-	orderDetailRoutes := baseRoutes.Group("/order-details")
-	orderDetailRepo := repository.NewOrderDetailRepository(db)
-
 	// # Dependency Injection Order
 	orderRoutes := baseRoutes.Group("/orders")
 	orderRepo := repository.NewOrderRepository(db)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator)
-	orderHttpHandler := httpHandler.NewOrderHandler(orderUsecase)
+	orderHttpHandler := httpHandler.NewOrderHandler(orderUsecase, userGrpcClient)
 	orderHttpHandler.InitRoutes(orderRoutes)
+
+	// # Dependency Injection Order Detail
+	// orderDetailRoutes := baseRoutes.Group("/order-details")
+	// orderDetailRepo := repository.NewOrderDetailRepository(db)
 
 	// # Swagger documentation route
 	e.File("/swagger/doc.json", "docs/swagger.json")
 	e.File("/swagger/doc.yaml", "docs/swagger.yaml")
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	// Initialize gRPC server
-	grpcServer := grpc.NewServer(grpc.UnaryInterceptor(middleware.AuthGRPCInterceptor))
-	pb.RegisterAddressServiceServer(grpcServer, grpcHandler.NewAddressGRPCHandler(addressUsecase))
+	// # Swagger documentation route
+	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
-	// Start the HTTP server
-	go func() {
-		if err := e.Server.Serve(httpL); err != nil {
-			errCh <- fmt.Errorf("HTTP server error: %v", err)
-		}
-	}()
-
-	// Start the gRPC server
-	go func() {
-		if err := grpcServer.Serve(grpcL); err != nil {
-			errCh <- fmt.Errorf("gRPC server error: %v", err)
-		}
-	}()
-
-	// Start the cmux listener
-	fmt.Printf("Combined HTTP/gRPC server started on port %s\n", port)
-	if err := m.Serve(); err != nil {
-		errCh <- fmt.Errorf("cmux serve error: %v", err)
+	// # Get PORT from ENV
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+
+	// # Log error
+	e.Logger.Fatal(e.Start(":" + port))
 }
