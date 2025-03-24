@@ -1,0 +1,78 @@
+syntax = "proto3";
+
+package pb.transactions;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "pb/transactions";
+
+service TransactionService {
+  rpc CreateTransaction (CreateTransactionRequest) returns (TransactionResponse);
+  rpc GetTransaction (GetTransactionRequest) returns (TransactionResponse);
+  rpc GetTransactionsByOrder (GetTransactionsByOrderRequest) returns (TransactionListResponse);
+  rpc UpdateTransactionStatus (UpdateTransactionStatusRequest) returns (TransactionResponse);
+  rpc DeleteTransaction (DeleteTransactionRequest) returns (DeleteTransactionResponse);
+  rpc ListTransactionsByDateRange (ListTransactionsByDateRangeRequest) returns (TransactionListResponse);
+}
+
+message Transaction {
+  string id = 1;
+  string order_id = 2;
+  string payment_method = 3;
+  double grand_total = 4;
+  string payment_status = 5;
+  google.protobuf.Timestamp transaction_date = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message CreateTransactionRequest {
+  string order_id = 1;
+  string payment_method = 2;
+  double grand_total = 3;
+  optional string payment_status = 4;
+  optional google.protobuf.Timestamp transaction_date = 5;
+}
+
+message GetTransactionRequest {
+  string id = 1;
+}
+
+message GetTransactionsByOrderRequest {
+  string order_id = 1;
+}
+
+message UpdateTransactionStatusRequest {
+  string id = 1;
+  string payment_status = 2;
+}
+
+message DeleteTransactionRequest {
+  string id = 1;
+}
+
+message DeleteTransactionResponse {
+  bool success = 1;
+}
+
+message ListTransactionsByDateRangeRequest {
+  google.protobuf.Timestamp start_date = 1;
+  google.protobuf.Timestamp end_date = 2;
+}
+
+message TransactionResponse {
+  Transaction transaction = 1;
+}
+
+message TransactionListResponse {
+  repeated Transaction transactions = 1;
+  int32 total_count = 2;
+}
+
+enum PaymentStatus {
+  PENDING = 0;
+  COMPLETED = 1;
+  FAILED = 2;
+  REFUNDED = 3;
+  CANCELLED = 4;
+}

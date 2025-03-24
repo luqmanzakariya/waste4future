@@ -24,7 +24,6 @@ import (
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
 	echoSwagger "github.com/swaggo/echo-swagger"
 
-	// "go.mongodb.org/mongo-driver/v2/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -133,6 +132,11 @@ func main() {
 	orderHttpHandler := httpHandler.NewOrderHandler(orderUsecase, userGrpcClient)
 	orderHttpHandler.InitRoutes(orderRoutes)
 
+	// # Dependency Injection - Transaction
+	transactionRoutes := baseRoutes.Group("/transactions")
+	transactionRepo := repository.NewTransactionRepository(db, "transactions")
+	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator, orderRepo)
+
 	// # Dependency Injection Order Detail
 	orderDetailRoutes := baseRoutes.Group("/order-details")
 	orderDetailRepo := repository.NewOrderDetailRepository(db)
@@ -147,6 +151,13 @@ func main() {
 	)
 	orderDetailHttpHandler := handler.NewOrderDetailHandler(orderDetailUsecase, userGrpcClient)
 	orderDetailHttpHandler.InitRoutes(orderDetailRoutes)
+
+	transactionHttpHandler := httpHandler.NewTransactionHandler(
+		*transactionUsecase,
+		validator,
+		userGrpcClient,
+	)
+	transactionHttpHandler.InitRoutes(transactionRoutes)
 
 	// # Swagger documentation route
 	e.File("/swagger/doc.json", "docs/swagger.json")

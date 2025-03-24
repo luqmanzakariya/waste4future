@@ -1,5 +1,28 @@
 basePath: /
 definitions:
+  model.CreateTransactionRequest:
+    properties:
+      grand_total:
+        type: number
+      order_id:
+        type: string
+      payment_method:
+        type: string
+      payment_status:
+        enum:
+        - pending
+        - completed
+        - failed
+        - refunded
+        - cancelled
+        type: string
+      transaction_date:
+        type: string
+    required:
+    - grand_total
+    - order_id
+    - payment_method
+    type: object
   model.Driver:
     properties:
       created_at:
@@ -225,6 +248,38 @@ definitions:
     - ShippingStatusPickup
     - ShippingStatusDelivery
     - ShippingStatusFinish
+  model.Transaction:
+    properties:
+      created_at:
+        type: string
+      grand_total:
+        type: number
+      id:
+        type: string
+      order_id:
+        type: string
+      payment_method:
+        type: string
+      payment_status:
+        type: string
+      transaction_date:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.UpdateTransactionStatusRequest:
+    properties:
+      status:
+        enum:
+        - pending
+        - completed
+        - failed
+        - refunded
+        - cancelled
+        type: string
+    required:
+    - status
+    type: object
   model.WebResponse:
     description: represents the standard API response format.
     properties:
@@ -233,6 +288,13 @@ definitions:
       data: {}
       status:
         type: string
+    type: object
+  utils.HTTPError:
+    properties:
+      detail: {}
+      error_code:
+        type: string
+      message: {}
     type: object
 host: localhost:8080
 info:
@@ -879,6 +941,220 @@ paths:
       summary: Update an Order Detail
       tags:
       - OrderDetail
+  /orders/{orderId}/transactions:
+    get:
+      description: Get all transactions for a specific order
+      parameters:
+      - description: Order ID
+        in: path
+        name: orderId
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Transaction'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get transactions by order
+      tags:
+      - transactions
+  /transactions:
+    get:
+      description: Get transactions within a specific date range
+      parameters:
+      - description: Start date (RFC3339 format)
+        in: query
+        name: start
+        required: true
+        type: string
+      - description: End date (RFC3339 format)
+        in: query
+        name: end
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Transaction'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get transactions by date range
+      tags:
+      - transactions
+    post:
+      consumes:
+      - application/json
+      description: Create a new payment transaction
+      parameters:
+      - description: Transaction data
+        in: body
+        name: transaction
+        required: true
+        schema:
+          $ref: '#/definitions/model.CreateTransactionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Create a new transaction
+      tags:
+      - transactions
+  /transactions/{id}:
+    delete:
+      description: Delete a transaction by ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Delete a transaction
+      tags:
+      - transactions
+    get:
+      description: Get a transaction by ID
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Get a transaction
+      tags:
+      - transactions
+  /transactions/{id}/status:
+    put:
+      consumes:
+      - application/json
+      description: Update payment status of a transaction
+      parameters:
+      - description: Transaction ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Status update
+        in: body
+        name: status
+        required: true
+        schema:
+          $ref: '#/definitions/model.UpdateTransactionStatusRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Transaction'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - BearerAuth: []
+      summary: Update transaction status
+      tags:
+      - transactions
 schemes:
 - http
 - https
