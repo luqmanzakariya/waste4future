@@ -99,7 +99,7 @@ definitions:
         description: Price of the waste type
         type: number
     type: object
-host: https://recyclehub-service-84457363535.asia-southeast2.run.app/
+host: recyclehub-service-84457363535.asia-southeast2.run.app
 info:
   contact: {}
   description: This is the API documentation for the RecycleHub Service.
