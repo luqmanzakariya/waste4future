@@ -15,6 +15,343 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/api/drivers": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find All Active Driver",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Find All Active Driver",
+                "responses": {
+                    "200": {
+                        "description": "List Active Driver",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Driver"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create new Driver",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Create a Driver",
+                "parameters": [
+                    {
+                        "description": "create driver payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadCreateDriver"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Driver created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseDriver"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/drivers/all": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find All Driver",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Find All Driver",
+                "responses": {
+                    "200": {
+                        "description": "List Driver",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Driver"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/drivers/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update Driver by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Update a Driver",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67e1327bc481a422f0293ff9\"",
+                        "description": "driver id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update driver payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadUpdateDriver"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Driver updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseDriver"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a Driver",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Delete a Driver",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67e1327bc481a422f0293ff9\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Driver created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseDriver"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/orders": {
             "get": {
                 "description": "Find All Orders",
@@ -815,6 +1152,45 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "model.Driver": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "license_plate": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.DriverStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DriverStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "working"
+            ],
+            "x-enum-varnames": [
+                "DriverStatusActive",
+                "DriverStatusInactive",
+                "DriverStatusWorking"
+            ]
+        },
         "model.Order": {
             "type": "object",
             "properties": {
@@ -871,6 +1247,29 @@ const docTemplate = `{
                 "OrderStatusRejected"
             ]
         },
+        "model.PayloadCreateDriver": {
+            "description": "PayloadCreateDriver details.",
+            "type": "object",
+            "required": [
+                "license_plate",
+                "name",
+                "phone"
+            ],
+            "properties": {
+                "license_plate": {
+                    "type": "string",
+                    "example": "B 4134 LUZ"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "driver grab"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "081394859283"
+                }
+            }
+        },
         "model.PayloadCreateOrder": {
             "description": "PayloadCreateOrder details.",
             "type": "object",
@@ -901,6 +1300,32 @@ const docTemplate = `{
                 },
                 "waste_weight": {
                     "type": "number"
+                }
+            }
+        },
+        "model.PayloadUpdateDriver": {
+            "description": "PayloadUpdateDriver details.",
+            "type": "object",
+            "properties": {
+                "license_plate": {
+                    "type": "string",
+                    "example": "B 4134 LUZ"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "driver grab"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "081394859283"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.DriverStatus"
+                        }
+                    ],
+                    "example": "inactive"
                 }
             }
         },
@@ -936,6 +1361,32 @@ const docTemplate = `{
                 },
                 "waste_weight": {
                     "type": "number"
+                }
+            }
+        },
+        "model.ResponseDriver": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "license_plate": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.DriverStatus"
+                },
+                "updated_at": {
+                    "type": "string"
                 }
             }
         },

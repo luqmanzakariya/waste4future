@@ -1,5 +1,32 @@
 basePath: /
 definitions:
+  model.Driver:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      license_plate:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      status:
+        $ref: '#/definitions/model.DriverStatus'
+      updated_at:
+        type: string
+    type: object
+  model.DriverStatus:
+    enum:
+    - active
+    - inactive
+    - working
+    type: string
+    x-enum-varnames:
+    - DriverStatusActive
+    - DriverStatusInactive
+    - DriverStatusWorking
   model.Order:
     properties:
       created_at:
@@ -39,6 +66,23 @@ definitions:
     - OrderStatusPending
     - OrderStatusPaid
     - OrderStatusRejected
+  model.PayloadCreateDriver:
+    description: PayloadCreateDriver details.
+    properties:
+      license_plate:
+        example: B 4134 LUZ
+        type: string
+      name:
+        example: driver grab
+        type: string
+      phone:
+        example: "081394859283"
+        type: string
+    required:
+    - license_plate
+    - name
+    - phone
+    type: object
   model.PayloadCreateOrder:
     description: PayloadCreateOrder details.
     properties:
@@ -61,6 +105,23 @@ definitions:
     - origin_address_id
     - recycle_hub_id
     - waste_weight
+    type: object
+  model.PayloadUpdateDriver:
+    description: PayloadUpdateDriver details.
+    properties:
+      license_plate:
+        example: B 4134 LUZ
+        type: string
+      name:
+        example: driver grab
+        type: string
+      phone:
+        example: "081394859283"
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/model.DriverStatus'
+        example: inactive
     type: object
   model.PayloadUpdateOrder:
     description: PayloadUpdateOrder details.
@@ -85,6 +146,23 @@ definitions:
     - destination_address_id
     - origin_address_id
     - waste_weight
+    type: object
+  model.ResponseDriver:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      license_plate:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      status:
+        $ref: '#/definitions/model.DriverStatus'
+      updated_at:
+        type: string
     type: object
   model.ResponseOrder:
     description: ResponseOrder details.
@@ -163,6 +241,195 @@ info:
   title: Operation Service API
   version: "1.0"
 paths:
+  /api/drivers:
+    get:
+      description: Find All Active Driver
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List Active Driver
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Driver'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Find All Active Driver
+      tags:
+      - Drivers
+    post:
+      description: Create new Driver
+      parameters:
+      - description: create driver payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateDriver'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Driver created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseDriver'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create a Driver
+      tags:
+      - Drivers
+  /api/drivers/{id}:
+    delete:
+      description: Delete a Driver
+      parameters:
+      - description: order detail id
+        example: '"67e1327bc481a422f0293ff9"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Driver created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseDriver'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a Driver
+      tags:
+      - Drivers
+    put:
+      description: Update Driver by ID
+      parameters:
+      - description: driver id
+        example: '"67e1327bc481a422f0293ff9"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update driver payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateDriver'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Driver updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseDriver'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Driver
+      tags:
+      - Drivers
+  /api/drivers/all:
+    get:
+      description: Find All Driver
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List Driver
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Driver'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Find All Driver
+      tags:
+      - Drivers
   /api/orders:
     get:
       description: Find All Orders

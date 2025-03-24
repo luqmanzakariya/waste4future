@@ -12,6 +12,7 @@ import (
 
 type IDriverRepository interface {
 	Create(ctx context.Context, driver model.Driver) (model.Driver, error)
+	ReadAllActive(ctx context.Context) ([]model.Driver, error)
 	ReadAll(ctx context.Context) ([]model.Driver, error)
 	ReadByID(ctx context.Context, id string) (model.Driver, error)
 	Update(ctx context.Context, id string, driver model.Driver) (model.Driver, error)
@@ -41,6 +42,24 @@ func (d *driverRepository) Create(ctx context.Context, driver model.Driver) (mod
 
 	driver.ID = insertedID
 	return driver, nil
+}
+
+func (d *driverRepository) ReadAllActive(ctx context.Context) ([]model.Driver, error) {
+	var drivers []model.Driver
+
+	// Add filter for status = "active"
+	filter := bson.D{{Key: "status", Value: "active"}}
+
+	cursor, err := d.DriverCollection.Find(ctx, filter)
+	if err != nil {
+		return drivers, err
+	}
+
+	if err = cursor.All(ctx, &drivers); err != nil {
+		return drivers, err
+	}
+
+	return drivers, nil
 }
 
 func (d *driverRepository) ReadAll(ctx context.Context) ([]model.Driver, error) {

@@ -12,6 +12,7 @@ import (
 
 type IDriverUsecase interface {
 	Create(ctx context.Context, payload model.PayloadCreateDriver) (model.ResponseDriver, error)
+	FindAllActive(ctx context.Context) ([]model.Driver, error)
 	FindAll(ctx context.Context) ([]model.Driver, error)
 	FindByID(ctx context.Context, id string) (model.ResponseDriver, error)
 	Update(ctx context.Context, id string, payload model.PayloadUpdateDriver) (model.ResponseDriver, error)
@@ -61,6 +62,16 @@ func (d *driverUsecase) Create(ctx context.Context, payload model.PayloadCreateD
 	}
 
 	return response, nil
+}
+
+func (d *driverUsecase) FindAllActive(ctx context.Context) ([]model.Driver, error) {
+	var drivers []model.Driver
+	drivers, err := d.DriverRepo.ReadAllActive(ctx)
+	if err != nil {
+		return drivers, err
+	}
+
+	return drivers, nil
 }
 
 func (d *driverUsecase) FindAll(ctx context.Context) ([]model.Driver, error) {

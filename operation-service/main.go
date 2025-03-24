@@ -111,6 +111,13 @@ func main() {
 	// # Base Routes
 	baseRoutes := e.Group("/api")
 
+	// # Dependency Driver
+	driverRoutes := baseRoutes.Group("/drivers")
+	driverRepo := repository.NewDriverRepository(db)
+	driverUsecase := usecase.NewDriverUsecase(driverRepo, validator)
+	driverHttpHandler := httpHandler.NewDriverUsecase(driverUsecase)
+	driverHttpHandler.InitRoutes(driverRoutes)
+
 	// # Dependency Injection Order
 	orderRoutes := baseRoutes.Group("/orders")
 	orderRepo := repository.NewOrderRepository(db)
