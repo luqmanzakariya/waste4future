@@ -32,6 +32,7 @@ func (o orderHandler) InitRoutes(g *echo.Group) {
 	g.PUT("/:id", o.Update, middleware.AuthMiddleware)
 	g.DELETE("/:id", o.Delete, middleware.AuthMiddleware)
 	g.POST("/save", o.SaveOrderID, middleware.AuthMiddleware)
+	g.POST("/checkout", o.CheckoutOrder, middleware.AuthMiddleware)
 }
 
 // Order Create
@@ -230,6 +231,38 @@ func (o orderHandler) SaveOrderID(c echo.Context) error {
 	userId := userInfo.ID
 
 	err = o.OrderUsecase.SaveOrderDetail(ctx, "randomgenerated", userId)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("Error save order id: %v", err))
+	}
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
+}
+
+// Order Checkout Order
+// @Summary Checkout Order
+// @Description Checkout Order and Change Status
+// @Tags Orders
+// @Produce json
+// @Success 200 {object} model.WebResponse{data=model.ResponseOrder} "Order created"
+// @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
+// @Security BearerAuth
+// @Router /api/orders/checkout [post]
+func (o orderHandler) CheckoutOrder(c echo.Context) error {
+	token := c.Get("token").(string)
+	// Create a context with the Authorization header for gRPC
+	ctx := metadata.AppendToOutgoingContext(c.Request().Context(), "authorization", token)
+	userInfo, err := o.UserGrpcClient.Validate(ctx, &userPB.ValidateRequest{})
+	if err != nil {
+		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("User validation failed: %v", err))
+	}
+	userId := userInfo.ID
+
+	err = o.OrderUsecase.CheckoutOrder(ctx, userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("Error save order id: %v", err))
 	}

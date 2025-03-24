@@ -17,6 +17,7 @@ type IOrderRepository interface {
 	Update(ctx context.Context, id string, address model.Order) (model.Order, error)
 	Delete(ctx context.Context, id string) error
 	SaveOrderDetail(ctx context.Context, orderId string, userId int64) error
+	CheckoutOrder(ctx context.Context, userId int64) error
 }
 
 type orderRepository struct {
@@ -135,9 +136,9 @@ func (o *orderRepository) Delete(ctx context.Context, id string) error {
 	return nil
 }
 
-func (o *orderRepository) SaveOrderDetail(ctx context.Context, orderId string, userId int64) error {
-	// Convert the string orderId to bson.ObjectID
-	// objectID, err := bson.ObjectIDFromHex(orderId)
+func (o *orderRepository) SaveOrderDetail(ctx context.Context, orderDetailId string, userId int64) error {
+	// Convert the string orderDetailId to bson.ObjectID
+	// objectID, err := bson.ObjectIDFromHex(orderDetailId)
 	// if err != nil {
 	// 	return errors.New("invalid order ID format")
 	// }
@@ -163,8 +164,8 @@ func (o *orderRepository) SaveOrderDetail(ctx context.Context, orderId string, u
 	if foundStatusDraftOrder {
 		// # Insert Order ID
 		update := bson.M{
-			"$push": bson.M{"order_detail_ids": orderId}, // Append to the array
-			"$set":  bson.M{"updated_at": time.Now()},    // Update the updated_at timestamp
+			"$push": bson.M{"order_detail_ids": orderDetailId}, // Append to the array
+			"$set":  bson.M{"updated_at": time.Now()},          // Update the updated_at timestamp
 		}
 
 		// Perform the update operation
@@ -178,7 +179,7 @@ func (o *orderRepository) SaveOrderDetail(ctx context.Context, orderId string, u
 		newOrder := model.Order{
 			UserID:          userId,
 			DriverID:        "",
-			OrderDetailIDs:  model.OrderDetailIDs{orderId},
+			OrderDetailIDs:  model.OrderDetailIDs{orderDetailId},
 			OrderDate:       time.Now(),
 			OrderStatus:     model.OrderStatusDraft,
 			ShippingStatus:  model.ShippingStatusUnassigned,
@@ -200,6 +201,40 @@ func (o *orderRepository) SaveOrderDetail(ctx context.Context, orderId string, u
 
 		newOrder.ID = insertedID
 		return nil
+	}
+
+	return nil
+}
+
+func (o *orderRepository) CheckoutOrder(ctx context.Context, userId int64) error {
+	// Define a filter to find the order by _id and OrderStatus = "draft"
+	filter := bson.M{
+		"user_id":      userId,                 // Match the user ID
+		"order_status": model.OrderStatusDraft, // Match the order status
+	}
+
+	// Query the collection to find the order
+	var order model.Order
+	err := o.OrderCollection.FindOne(ctx, filter).Decode(&order)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return errors.New("order not found or not in draft status")
+		}
+		return err
+	}
+
+	// Define an update to set the order_status to "pending" and update the updated_at timestamp
+	update := bson.M{
+		"$set": bson.M{
+			"order_status": model.OrderStatusPending, // Update order status to "pending"
+			"updated_at":   time.Now(),               // Update the updated_at timestamp
+		},
+	}
+
+	// Perform the update operation
+	_, err = o.OrderCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
 	}
 
 	return nil

@@ -17,6 +17,7 @@ type IOrderUsecase interface {
 	Update(ctx context.Context, id string, payload model.PayloadUpdateOrder) (model.ResponseOrder, error)
 	Delete(ctx context.Context, id string) error
 	SaveOrderDetail(ctx context.Context, orderId string, userId int64) error
+	CheckoutOrder(ctx context.Context, userId int64) error
 }
 
 type orderUsecase struct {
@@ -149,4 +150,8 @@ func (o *orderUsecase) Delete(ctx context.Context, id string) error {
 
 func (o *orderUsecase) SaveOrderDetail(ctx context.Context, orderId string, userId int64) error {
 	return o.OrderRepo.SaveOrderDetail(ctx, orderId, userId)
+}
+
+func (o *orderUsecase) CheckoutOrder(ctx context.Context, userId int64) error {
+	return o.OrderRepo.CheckoutOrder(ctx, userId)
 }

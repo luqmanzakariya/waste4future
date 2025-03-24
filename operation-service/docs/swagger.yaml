@@ -388,6 +388,38 @@ paths:
       summary: Update an Order
       tags:
       - Orders
+  /api/orders/checkout:
+    post:
+      description: Checkout Order and Change Status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrder'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Checkout Order
+      tags:
+      - Orders
   /api/orders/save:
     post:
       description: Save Order Detail ID
