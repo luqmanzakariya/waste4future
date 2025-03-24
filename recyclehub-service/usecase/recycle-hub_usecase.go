@@ -10,6 +10,7 @@ import (
 	"recyclehub-service/repository"
 
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type IRecycleHubUsecase interface {
@@ -55,6 +56,7 @@ func (u *recycleHubUsecase) Create(ctx context.Context, payload web.RecycleHubCr
 	}
 
 	newRecycleHub := &domain.RecycleHub{
+		ID:          primitive.NewObjectID(), // Explicitly generate a new ObjectId
 		Name:        payload.Name,
 		Phone:       payload.Phone,
 		AddressID:   payload.AddressID,

@@ -4,7 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 // RecycleHub represents a recycle hub
 type RecycleHub struct {
-	ID          primitive.ObjectID `json:"id" bson:"_id"`
+	ID          primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Name        string             `json:"name" bson:"name"`
 	Phone       string             `json:"phone" bson:"phone"`
 	AddressID   string             `json:"address_id" bson:"address_id"`
