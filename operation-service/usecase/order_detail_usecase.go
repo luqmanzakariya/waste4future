@@ -1,4 +1,3 @@
-// order_detail_usecase.go
 package usecase
 
 import (
@@ -6,9 +5,9 @@ import (
 	"errors"
 	"math"
 	"operation-service/model"
-	pbAddress "operation-service/pb/address"    // Address service proto
-	pbRecycle "operation-service/pb/recyclehub" // Recyclehub service proto (assumed)
-	pbUser "operation-service/pb/user"          // User service proto (assumed)
+	pbAddress "operation-service/pb/address"
+	pbRecycle "operation-service/pb/recyclehub"
+	pbUser "operation-service/pb/user"
 	"operation-service/repository"
 	"strconv"
 	"time"
@@ -20,7 +19,7 @@ import (
 )
 
 type IOrderDetailUsecase interface {
-	Create(ctx context.Context, payload model.PayloadCreateOrderDetail) (model.ResponseOrderDetail, error)
+	Create(ctx context.Context, userID int, payload model.PayloadCreateOrderDetail) (model.ResponseOrderDetail, error)
 	FindAll(ctx context.Context) ([]model.OrderDetail, error)
 	FindByID(ctx context.Context, id string) (model.ResponseOrderDetail, error)
 	Update(ctx context.Context, id string, payload model.PayloadUpdateOrderDetail) (model.ResponseOrderDetail, error)
@@ -30,9 +29,9 @@ type IOrderDetailUsecase interface {
 type orderDetailUsecase struct {
 	OrderDetailRepo  repository.IOrderDetailRepository
 	AddressClient    pbAddress.AddressServiceClient
-	RecycleHubClient pbRecycle.RecycleHubServiceClient // Assumed client
-	WasteTypeClient  pbRecycle.WasteTypeServiceClient  // Assumed client
-	UserClient       pbUser.UserServiceClient          // Assumed client
+	RecycleHubClient pbRecycle.RecycleHubServiceClient
+	WasteTypeClient  pbRecycle.WasteTypeServiceClient
+	UserClient       pbUser.UserServiceClient
 	Validate         *validator.Validate
 }
 
@@ -57,10 +56,8 @@ func NewOrderDetailUsecase(
 // Haversine formula for distance calculation
 func calculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	const R = 6371 // Earth radius in kilometers
-
 	dLat := (lat2 - lat1) * math.Pi / 180
 	dLon := (lon2 - lon1) * math.Pi / 180
-
 	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
 		math.Cos(lat1*math.Pi/180)*math.Cos(lat2*math.Pi/180)*
 			math.Sin(dLon/2)*math.Sin(dLon/2)
@@ -68,15 +65,13 @@ func calculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
 	return R * c
 }
 
-func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCreateOrderDetail) (model.ResponseOrderDetail, error) {
+func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload model.PayloadCreateOrderDetail) (model.ResponseOrderDetail, error) {
 	if err := u.Validate.Struct(payload); err != nil {
 		return model.ResponseOrderDetail{}, err
 	}
 
-	// 1. Get origin address from address service
-	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{
-		Id: payload.OriginAddressID,
-	})
+	// Get origin address
+	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.OriginAddressID})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return model.ResponseOrderDetail{}, errors.New("origin address not found")
@@ -84,10 +79,8 @@ func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCr
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch origin address: " + err.Error())
 	}
 
-	// 2. Get destination address from address service
-	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{
-		Id: payload.DestinationAddressID,
-	})
+	// Get destination address
+	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.DestinationAddressID})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return model.ResponseOrderDetail{}, errors.New("destination address not found")
@@ -95,10 +88,8 @@ func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCr
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch destination address: " + err.Error())
 	}
 
-	// 3. Get recycle hub details and waste price
-	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{
-		Id: payload.RecycleHubID,
-	})
+	// Get recycle hub details
+	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{Id: payload.RecycleHubID})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return model.ResponseOrderDetail{}, errors.New("recycle hub not found")
@@ -106,10 +97,8 @@ func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCr
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch recycle hub: " + err.Error())
 	}
 
-	// 4. Get waste price from recyclehub service
-	wasteResp, err := u.WasteTypeClient.GetWasteTypeByID(ctx, &pbRecycle.GetWasteTypeByIDRequest{
-		Id: recycleResp.WasteTypeId,
-	})
+	// Get waste price
+	wasteResp, err := u.WasteTypeClient.GetWasteTypeByID(ctx, &pbRecycle.GetWasteTypeByIDRequest{Id: recycleResp.WasteTypeId})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return model.ResponseOrderDetail{}, errors.New("waste type not found")
@@ -117,7 +106,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCr
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch waste price: " + err.Error())
 	}
 
-	// Convert coordinates to float64
+	// Convert coordinates
 	originLat, err := strconv.ParseFloat(originResp.Latitude, 64)
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("invalid origin latitude")
@@ -143,7 +132,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, payload model.PayloadCr
 	subTotal := payload.WasteWeight * wasteResp.Price
 
 	orderDetail := model.OrderDetail{
-		UserID:               payload.UserID,
+		UserID:               userID,
 		RecycleHubID:         payload.RecycleHubID,
 		WasteWeight:          payload.WasteWeight,
 		SubTotal:             subTotal,
@@ -183,38 +172,27 @@ func (u *orderDetailUsecase) Update(ctx context.Context, id string, payload mode
 		return model.ResponseOrderDetail{}, errors.New("order detail not found")
 	}
 
-	// Get addresses and recalculate delivery price
-	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{
-		Id: payload.OriginAddressID,
-	})
+	// Get addresses
+	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.OriginAddressID})
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch origin address: " + err.Error())
 	}
-
-	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{
-		Id: payload.DestinationAddressID,
-	})
+	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.DestinationAddressID})
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch destination address: " + err.Error())
 	}
 
 	// Get waste price
-	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{
-		Id: existing.RecycleHubID,
-	})
+	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{Id: existing.RecycleHubID})
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch recycle hub: " + err.Error())
 	}
-
-	wasteResp, err := u.WasteTypeClient.GetWasteTypeByID(ctx, &pbRecycle.GetWasteTypeByIDRequest{
-		Id: recycleResp.WasteTypeId,
-	})
-
+	wasteResp, err := u.WasteTypeClient.GetWasteTypeByID(ctx, &pbRecycle.GetWasteTypeByIDRequest{Id: recycleResp.WasteTypeId})
 	if err != nil {
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch waste price: " + err.Error())
 	}
 
-	// Convert coordinates and calculate distance
+	// Calculate distance and delivery price
 	originLat, _ := strconv.ParseFloat(originResp.Latitude, 64)
 	originLon, _ := strconv.ParseFloat(originResp.Longitude, 64)
 	destLat, _ := strconv.ParseFloat(destResp.Latitude, 64)

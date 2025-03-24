@@ -20,7 +20,6 @@ type OrderDetail struct {
 }
 
 type PayloadCreateOrderDetail struct {
-	UserID               int     `json:"user_id" validate:"required"`
 	RecycleHubID         string  `json:"recycle_hub_id" validate:"required"`
 	WasteWeight          float64 `json:"waste_weight" validate:"required"`
 	OriginAddressID      string  `json:"origin_address_id" validate:"required"`
