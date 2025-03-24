@@ -29,11 +29,13 @@ definitions:
     type: object
   model.OrderStatus:
     enum:
+    - draft
     - pending
     - paid
     - rejected
     type: string
     x-enum-varnames:
+    - OrderStatusDraft
     - OrderStatusPending
     - OrderStatusPaid
     - OrderStatusRejected
@@ -135,11 +137,13 @@ definitions:
     type: object
   model.ShippingStatus:
     enum:
+    - unassigned
     - pickup
     - delivery
     - finish
     type: string
     x-enum-varnames:
+    - ShippingStatusUnassigned
     - ShippingStatusPickup
     - ShippingStatusDelivery
     - ShippingStatusFinish
@@ -382,6 +386,38 @@ paths:
       security:
       - BearerAuth: []
       summary: Update an Order
+      tags:
+      - Orders
+  /api/orders/save:
+    post:
+      description: Save Order Detail ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrder'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Save Order Detail ID
       tags:
       - Orders
   /order-details:

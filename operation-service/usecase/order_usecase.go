@@ -11,11 +11,12 @@ import (
 )
 
 type IOrderUsecase interface {
-	Create(ctx context.Context, payload model.PayloadCreateOrder) (model.ResponseOrder, error)
+	Create(ctx context.Context, payload model.PayloadCreateOrder, userId int64) (model.ResponseOrder, error)
 	FindAll(ctx context.Context) ([]model.Order, error)
 	FindByID(ctx context.Context, id string) (model.ResponseOrder, error)
 	Update(ctx context.Context, id string, payload model.PayloadUpdateOrder) (model.ResponseOrder, error)
 	Delete(ctx context.Context, id string) error
+	SaveOrderDetail(ctx context.Context, orderId string, userId int64) error
 }
 
 type orderUsecase struct {
@@ -30,19 +31,26 @@ func NewOrderUsecase(OrderRepo repository.IOrderRepository, validate *validator.
 	}
 }
 
-func (o *orderUsecase) Create(ctx context.Context, payload model.PayloadCreateOrder) (model.ResponseOrder, error) {
+func (o *orderUsecase) Create(ctx context.Context, payload model.PayloadCreateOrder, userId int64) (model.ResponseOrder, error) {
 	err := o.Validate.Struct(payload)
 	if err != nil {
 		return model.ResponseOrder{}, err
 	}
 
 	order := model.Order{
-		Note:      payload.Note,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		UserID:          userId,
+		DriverID:        "",
+		OrderDetailIDs:  model.OrderDetailIDs{},
+		OrderDate:       time.Now(),
+		OrderStatus:     model.OrderStatusDraft,
+		ShippingStatus:  model.ShippingStatusUnassigned,
+		UpdatedShipping: time.Now(),
+		Note:            payload.Note,
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
 	}
 
-	res, err := o.OrderRepo.Create(ctx, order)
+	res, err := o.OrderRepo.Create(ctx, order, userId)
 	if err != nil {
 		return model.ResponseOrder{}, err
 	}
@@ -137,4 +145,8 @@ func (o *orderUsecase) Update(ctx context.Context, id string, payload model.Payl
 
 func (o *orderUsecase) Delete(ctx context.Context, id string) error {
 	return o.OrderRepo.Delete(ctx, id)
+}
+
+func (o *orderUsecase) SaveOrderDetail(ctx context.Context, orderId string, userId int64) error {
+	return o.OrderRepo.SaveOrderDetail(ctx, orderId, userId)
 }

@@ -140,6 +140,65 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/orders/save": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Save Order Detail ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Save Order Detail ID",
+                "responses": {
+                    "200": {
+                        "description": "Order created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrder"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/orders/{id}": {
             "get": {
                 "description": "Find Order By ID",
@@ -741,11 +800,13 @@ const docTemplate = `{
         "model.OrderStatus": {
             "type": "string",
             "enum": [
+                "draft",
                 "pending",
                 "paid",
                 "rejected"
             ],
             "x-enum-varnames": [
+                "OrderStatusDraft",
                 "OrderStatusPending",
                 "OrderStatusPaid",
                 "OrderStatusRejected"
@@ -896,11 +957,13 @@ const docTemplate = `{
         "model.ShippingStatus": {
             "type": "string",
             "enum": [
+                "unassigned",
                 "pickup",
                 "delivery",
                 "finish"
             ],
             "x-enum-varnames": [
+                "ShippingStatusUnassigned",
                 "ShippingStatusPickup",
                 "ShippingStatusDelivery",
                 "ShippingStatusFinish"
