@@ -33,6 +33,7 @@ func (o orderHandler) InitRoutes(g *echo.Group) {
 	g.DELETE("/:id", o.Delete, middleware.AuthMiddleware)
 	g.POST("/save", o.SaveOrderID, middleware.AuthMiddleware)
 	g.POST("/checkout", o.CheckoutOrder, middleware.AuthMiddleware)
+	g.GET("/scheduler-shipping", o.SchedulerShipping)
 }
 
 // Order Create
@@ -265,6 +266,28 @@ func (o orderHandler) CheckoutOrder(c echo.Context) error {
 	err = o.OrderUsecase.CheckoutOrder(ctx, userId)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusUnauthorized, fmt.Sprintf("Error save order id: %v", err))
+	}
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
+}
+
+// Order SchedulerShipping
+// @Summary SchedulerShipping Orders
+// @Description SchedulerShipping Update Shipping And Orders
+// @Tags Orders
+// @Produce json
+// @Success 200 {object} model.WebResponse{data=[]model.Order} "Order list"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Router /api/orders/scheduler-shipping [get]
+func (o orderHandler) SchedulerShipping(c echo.Context) error {
+	err := o.OrderUsecase.SchedulerUpdateOrderAndShipping(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	webResponse := model.WebResponse{

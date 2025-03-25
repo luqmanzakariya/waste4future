@@ -807,6 +807,38 @@ paths:
       summary: Save Order Detail ID
       tags:
       - Orders
+  /api/orders/scheduler-shipping:
+    get:
+      description: SchedulerShipping Update Shipping And Orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order list
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Order'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: SchedulerShipping Orders
+      tags:
+      - Orders
   /api/transactions:
     get:
       description: Find All Transactions

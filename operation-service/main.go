@@ -133,7 +133,7 @@ func main() {
 		userConn,
 		validator,
 	)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator, transactionRepo, orderDetailRepo)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator, transactionRepo, orderDetailRepo, driverRepo)
 	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator, orderRepo, driverRepo)
 	driverUsecase := usecase.NewDriverUsecase(driverRepo, validator)
 

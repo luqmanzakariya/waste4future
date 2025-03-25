@@ -19,6 +19,9 @@ type IOrderRepository interface {
 	SaveOrderDetail(ctx context.Context, orderId string, userId int64) error
 	CheckoutOrder(ctx context.Context, userId int64) (model.Order, error)
 	DeleteOrderDetailID(ctx context.Context, orderDetailId string, userId int64) error
+	FindAllWithShippingStatusPickupWithDriver(ctx context.Context) ([]model.Order, error)
+	FindAllWithShippingStatusPickupWithoutDriver(ctx context.Context) ([]model.Order, error)
+	FindAllWithShippingStatusDelivery(ctx context.Context) ([]model.Order, error)
 }
 
 type orderRepository struct {
@@ -266,4 +269,77 @@ func (o *orderRepository) DeleteOrderDetailID(ctx context.Context, orderDetailId
 	}
 
 	return nil
+}
+
+func (o *orderRepository) FindAllWithShippingStatusPickupWithDriver(ctx context.Context) ([]model.Order, error) {
+	// Initialize as empty slice
+	orders := make([]model.Order, 0)
+
+	// Create filter for shipping_status = "pickup"
+	filter := bson.M{
+		"shipping_status": model.ShippingStatusPickup,
+		"driver_id": bson.M{
+			"$ne": "", // Not equal to empty string
+		},
+	}
+
+	// Find all matching orders
+	cursor, err := o.OrderCollection.Find(ctx, filter)
+	if err != nil {
+		return orders, err
+	}
+
+	// Decode results into orders slice
+	if err = cursor.All(ctx, &orders); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (o *orderRepository) FindAllWithShippingStatusPickupWithoutDriver(ctx context.Context) ([]model.Order, error) {
+	// Initialize as empty slice
+	orders := make([]model.Order, 0)
+
+	// Create filter for shipping_status = "pickup"
+	filter := bson.M{
+		"shipping_status": model.ShippingStatusPickup,
+		"driver_id":       "",
+	}
+
+	// Find all matching orders
+	cursor, err := o.OrderCollection.Find(ctx, filter)
+	if err != nil {
+		return orders, err
+	}
+
+	// Decode results into orders slice
+	if err = cursor.All(ctx, &orders); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
+}
+
+func (o *orderRepository) FindAllWithShippingStatusDelivery(ctx context.Context) ([]model.Order, error) {
+	// Initialize as empty slice
+	orders := make([]model.Order, 0)
+
+	// Create filter for shipping_status = "pickup"
+	filter := bson.M{
+		"shipping_status": model.ShippingStatusDelivery,
+	}
+
+	// Find all matching orders
+	cursor, err := o.OrderCollection.Find(ctx, filter)
+	if err != nil {
+		return orders, err
+	}
+
+	// Decode results into orders slice
+	if err = cursor.All(ctx, &orders); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
 }
