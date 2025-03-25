@@ -117,30 +117,13 @@ func main() {
 	// # Base Routes
 	baseRoutes := e.Group("/api")
 
-	// # Dependency Driver
-	driverRoutes := baseRoutes.Group("/drivers")
-	driverRepo := repository.NewDriverRepository(db)
-	driverUsecase := usecase.NewDriverUsecase(driverRepo, validator)
-	driverHttpHandler := handler.NewDriverUsecase(driverUsecase)
-	driverHttpHandler.InitRoutes(driverRoutes)
-
-	// # Dependency Injection Order
-	orderRoutes := baseRoutes.Group("/orders")
-	orderRepo := repository.NewOrderRepository(db)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator)
-	orderHttpHandler := handler.NewOrderHandler(orderUsecase, userGrpcClient)
-	orderHttpHandler.InitRoutes(orderRoutes)
-
-	// # Dependency Injection Transaction
-	transactionRoutes := baseRoutes.Group("/transactions")
-	transactionRepo := repository.NewTransactionRepository(db)
-	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator)
-	transactionHttpHandler := handler.NewTransactionHandler(transactionUsecase, userGrpcClient)
-	transactionHttpHandler.InitRoutes(transactionRoutes)
-
-	// # Dependency Injection Order Detail
-	orderDetailRoutes := baseRoutes.Group("/order-details")
+	// # List Repository
 	orderDetailRepo := repository.NewOrderDetailRepository(db)
+	orderRepo := repository.NewOrderRepository(db)
+	transactionRepo := repository.NewTransactionRepository(db)
+	driverRepo := repository.NewDriverRepository(db)
+
+	// # List Usecase
 	orderDetailUsecase := usecase.NewOrderDetailUsecase(
 		orderDetailRepo,
 		orderRepo,
@@ -150,8 +133,29 @@ func main() {
 		userConn,
 		validator,
 	)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator, transactionRepo, orderDetailRepo)
+	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator)
+	driverUsecase := usecase.NewDriverUsecase(driverRepo, validator)
+
+	// # Oder Detail Routes & Handler
+	orderDetailRoutes := baseRoutes.Group("/order-details")
 	orderDetailHttpHandler := handler.NewOrderDetailHandler(orderDetailUsecase, userGrpcClient)
 	orderDetailHttpHandler.InitRoutes(orderDetailRoutes)
+
+	// # Order Routes & Handler
+	orderRoutes := baseRoutes.Group("/orders")
+	orderHttpHandler := handler.NewOrderHandler(orderUsecase, userGrpcClient)
+	orderHttpHandler.InitRoutes(orderRoutes)
+
+	// # Transaction Routes & Handler
+	transactionRoutes := baseRoutes.Group("/transactions")
+	transactionHttpHandler := handler.NewTransactionHandler(transactionUsecase, userGrpcClient)
+	transactionHttpHandler.InitRoutes(transactionRoutes)
+
+	// # Driver Routes & Handler
+	driverRoutes := baseRoutes.Group("/drivers")
+	driverHttpHandler := handler.NewDriverUsecase(driverUsecase)
+	driverHttpHandler.InitRoutes(driverRoutes)
 
 	// # Swagger documentation route
 	e.File("/swagger/doc.json", "docs/swagger.json")

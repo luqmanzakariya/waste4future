@@ -3,6 +3,7 @@ package usecase
 import (
 	"context"
 	"errors"
+	"fmt"
 	"operation-service/model"
 	"operation-service/repository"
 	"time"
@@ -21,14 +22,18 @@ type IOrderUsecase interface {
 }
 
 type orderUsecase struct {
-	OrderRepo repository.IOrderRepository
-	Validate  *validator.Validate
+	OrderRepo       repository.IOrderRepository
+	Validate        *validator.Validate
+	OrderDetailRepo repository.IOrderDetailRepository
+	TransactionRepo repository.ITransactionRepository
 }
 
-func NewOrderUsecase(OrderRepo repository.IOrderRepository, validate *validator.Validate) IOrderUsecase {
+func NewOrderUsecase(OrderRepo repository.IOrderRepository, validate *validator.Validate, transactionRepo repository.ITransactionRepository, orderDetailRepo repository.IOrderDetailRepository) IOrderUsecase {
 	return &orderUsecase{
-		OrderRepo: OrderRepo,
-		Validate:  validate,
+		OrderRepo:       OrderRepo,
+		Validate:        validate,
+		TransactionRepo: transactionRepo,
+		OrderDetailRepo: orderDetailRepo,
 	}
 }
 
@@ -153,5 +158,40 @@ func (o *orderUsecase) SaveOrderDetail(ctx context.Context, orderId string, user
 }
 
 func (o *orderUsecase) CheckoutOrder(ctx context.Context, userId int64) error {
-	return o.OrderRepo.CheckoutOrder(ctx, userId)
+	res, err := o.OrderRepo.CheckoutOrder(ctx, userId)
+	if err != nil {
+		return errors.New("error updating order")
+	}
+
+	var grandTotal float64 = 0
+	// Loop through each order detail ID
+	for _, orderDetailID := range res.OrderDetailIDs {
+		// Call ReadByID for each order detail
+		orderDetail, err := o.OrderDetailRepo.ReadByID(ctx, orderDetailID)
+		if err != nil {
+			// Handle error (you might want to continue or return)
+			fmt.Printf("error reading order detail %s: %v\n", orderDetailID, err)
+			continue
+		}
+
+		// Do something with the orderDetail
+		grandTotal += orderDetail.SubTotal + orderDetail.DeliveryPrice
+	}
+
+	transaction := model.Transaction{
+		OrderID:         res.ID.Hex(),
+		PaymentMethod:   model.PaymentMethodBankTransfer,
+		GrandTotal:      grandTotal,
+		PaymentStatus:   model.PaymentStatusPending,
+		TransactionDate: time.Now(),
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+
+	_, err = o.TransactionRepo.Create(ctx, transaction)
+	if err != nil {
+		return errors.New("error create transaction")
+	}
+
+	return nil
 }

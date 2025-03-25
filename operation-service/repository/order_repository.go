@@ -17,7 +17,7 @@ type IOrderRepository interface {
 	Update(ctx context.Context, id string, address model.Order) (model.Order, error)
 	Delete(ctx context.Context, id string) error
 	SaveOrderDetail(ctx context.Context, orderId string, userId int64) error
-	CheckoutOrder(ctx context.Context, userId int64) error
+	CheckoutOrder(ctx context.Context, userId int64) (model.Order, error)
 	DeleteOrderDetailID(ctx context.Context, orderDetailId string, userId int64) error
 }
 
@@ -207,7 +207,7 @@ func (o *orderRepository) SaveOrderDetail(ctx context.Context, orderDetailId str
 	return nil
 }
 
-func (o *orderRepository) CheckoutOrder(ctx context.Context, userId int64) error {
+func (o *orderRepository) CheckoutOrder(ctx context.Context, userId int64) (model.Order, error) {
 	// Define a filter to find the order by _id and OrderStatus = "draft"
 	filter := bson.M{
 		"user_id":      userId,                 // Match the user ID
@@ -219,9 +219,9 @@ func (o *orderRepository) CheckoutOrder(ctx context.Context, userId int64) error
 	err := o.OrderCollection.FindOne(ctx, filter).Decode(&order)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return errors.New("order not found or not in draft status")
+			return order, errors.New("order not found or not in draft status")
 		}
-		return err
+		return order, err
 	}
 
 	// Define an update to set the order_status to "pending" and update the updated_at timestamp
@@ -235,10 +235,10 @@ func (o *orderRepository) CheckoutOrder(ctx context.Context, userId int64) error
 	// Perform the update operation
 	_, err = o.OrderCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return err
+		return order, err
 	}
 
-	return nil
+	return order, nil
 }
 
 func (o *orderRepository) DeleteOrderDetailID(ctx context.Context, orderDetailId string, userId int64) error {
