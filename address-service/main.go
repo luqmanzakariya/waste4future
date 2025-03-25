@@ -30,9 +30,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-// @title Address Service API
+// @title Waste4Future Address Service API
 // @version 1.0
-// @description This is the documentation of Address Service API
+// @description This is the documentation of Waste4Future Address Service API
 // @host address-service-84457363535.asia-southeast2.run.app/api
 // @schemes https http
 // @BasePath /

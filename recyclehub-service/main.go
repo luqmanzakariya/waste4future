@@ -29,9 +29,9 @@ import (
 	"google.golang.org/grpc"
 )
 
-// @title Recycle Service API
+// @title Waste4Future Recycle Service API
 // @version 1.0
-// @description This is the documentation of Recycle Service API including Address, RecycleHub, and WasteType services
+// @description This is the documentation of Waste4Future Recyclehub Service API
 // @host recyclehub-service-84457363535.asia-southeast2.run.app
 // @schemes https http
 // @BasePath /
@@ -107,7 +107,7 @@ func StartCombinedServer(db *mongo.Database, errCh chan error) {
 
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins:     []string{"https://recycle-service.example.com"},
+		AllowOrigins:     []string{"https://recyclehub-service-84457363535.asia-southeast2.run.app"},
 		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},

@@ -6,6 +6,8 @@ import (
 	"go.mongodb.org/mongo-driver/v2/bson"
 )
 
+// WasteType represents the structure of a waste type in the database.
+// @Description WasteType details.
 type WasteType struct {
 	ID        bson.ObjectID `bson:"_id,omitempty" json:"id"`
 	Name      string        `bson:"name" json:"name"`

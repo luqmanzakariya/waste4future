@@ -5,14 +5,659 @@
     ],
     "swagger": "2.0",
     "info": {
-        "description": "This is the documentation of Recycle Service API including Address, RecycleHub, and WasteType services",
-        "title": "Recycle Service API",
+        "description": "This is the documentation of Waste4Future Recyclehub Service API",
+        "title": "Waste4Future Recycle Service API",
         "contact": {},
         "version": "1.0"
     },
     "host": "recyclehub-service-84457363535.asia-southeast2.run.app",
     "basePath": "/",
-    "paths": {},
+    "paths": {
+        "/api/recycle-hubs": {
+            "get": {
+                "description": "Retrieve all Recycle Hubs",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RecycleHubs"
+                ],
+                "summary": "FindAll Recycle Hubs",
+                "responses": {
+                    "200": {
+                        "description": "Recycle Hubs list",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.RecycleHub"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Add and register new Recycle Hub",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RecycleHubs"
+                ],
+                "summary": "Create a Recycle Hub",
+                "parameters": [
+                    {
+                        "description": "create recycle hub payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadCreateRecycleHub"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recycle Hub created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseRecycleHub"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/recycle-hubs/{id}": {
+            "get": {
+                "description": "Retrieve a Recycle Hub by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RecycleHubs"
+                ],
+                "summary": "Find Recycle Hub by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "recycle hub id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recycle Hub found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseRecycleHub"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update Recycle Hub by ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RecycleHubs"
+                ],
+                "summary": "Update a Recycle Hub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "recycle hub id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update recycle hub payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadUpdateRecycleHub"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recycle Hub updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseRecycleHub"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete Recycle Hub by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "RecycleHubs"
+                ],
+                "summary": "Delete a Recycle Hub",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "recycle hub id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Recycle Hub deleted",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/waste-types": {
+            "get": {
+                "description": "Retrieve all waste types",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WasteTypes"
+                ],
+                "summary": "FindAll Waste Types",
+                "responses": {
+                    "200": {
+                        "description": "Waste types list",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.WasteType"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/waste-types/{id}": {
+            "get": {
+                "description": "Retrieve a waste type by its ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "WasteTypes"
+                ],
+                "summary": "Find Waste Type by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "waste type id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Waste type found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.WasteType"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "model.PayloadCreateRecycleHub": {
+            "description": "PayloadCreateRecycleHub details.",
+            "type": "object",
+            "required": [
+                "address_id",
+                "name",
+                "phone",
+                "waste_type_id"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "string",
+                    "example": "67cdcb62a50a990a870d928f"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Recycle Hub Jakut"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "08123456789"
+                },
+                "waste_type_id": {
+                    "type": "string",
+                    "example": "67cdcb62a50a990a870d928f"
+                }
+            }
+        },
+        "model.PayloadUpdateRecycleHub": {
+            "description": "PayloadUpdateRecycleHub details.",
+            "type": "object",
+            "required": [
+                "address_id",
+                "name",
+                "phone",
+                "waste_type_id"
+            ],
+            "properties": {
+                "address_id": {
+                    "type": "string",
+                    "example": "67cdcb62a50a990a870d928f"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Recycle Hub Jakarta Utara"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "08123456789"
+                },
+                "waste_type_id": {
+                    "type": "string",
+                    "example": "67cdcb62a50a990a870d928f"
+                }
+            }
+        },
+        "model.RecycleHub": {
+            "description": "RecycleHub details.",
+            "type": "object",
+            "properties": {
+                "address_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "waste_type_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResponseRecycleHub": {
+            "description": "ResponseRecycleHub details.",
+            "type": "object",
+            "properties": {
+                "address_id": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "waste_type_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.WasteType": {
+            "description": "WasteType details.",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.WebResponse": {
+            "description": "represents the standard API response format.",
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {},
+                "status": {
+                    "type": "string"
+                }
+            }
+        }
+    },
     "securityDefinitions": {
         "BearerAuth": {
             "type": "apiKey",

@@ -28,6 +28,17 @@ func (r recycleHubHandler) InitRoutes(g *echo.Group) {
 	g.DELETE("/:id", r.Delete, middleware.AuthMiddleware)
 }
 
+// RecycleHub Create
+// @Summary Create a Recycle Hub
+// @Description Add and register new Recycle Hub
+// @Tags RecycleHubs
+// @Accept json
+// @Produce json
+// @Param request body model.PayloadCreateRecycleHub true "create recycle hub payload"
+// @Success 200 {object} model.WebResponse{data=model.ResponseRecycleHub} "Recycle Hub created"
+// @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Router /api/recycle-hubs [post]
 func (r recycleHubHandler) Create(c echo.Context) error {
 	var payload model.PayloadCreateRecycleHub
 	err := c.Bind(&payload)
@@ -49,6 +60,14 @@ func (r recycleHubHandler) Create(c echo.Context) error {
 	return c.JSON(http.StatusOK, webResponse)
 }
 
+// RecycleHub FindAll
+// @Summary FindAll Recycle Hubs
+// @Description Retrieve all Recycle Hubs
+// @Tags RecycleHubs
+// @Produce json
+// @Success 200 {object} model.WebResponse{data=[]model.RecycleHub} "Recycle Hubs list"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Router /api/recycle-hubs [get]
 func (r recycleHubHandler) FindAll(c echo.Context) error {
 	recycleHubs, err := r.RecycleHubUsecase.FindAll(c.Request().Context())
 	if err != nil {
@@ -64,6 +83,15 @@ func (r recycleHubHandler) FindAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, webResponse)
 }
 
+// RecycleHub FindById
+// @Summary Find Recycle Hub by ID
+// @Description Retrieve a Recycle Hub by its ID
+// @Tags RecycleHubs
+// @Produce json
+// @Param id path string true "recycle hub id" example("67cdcb62a50a990a870d928f")
+// @Success 200 {object} model.WebResponse{data=model.ResponseRecycleHub} "Recycle Hub found"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Router /api/recycle-hubs/{id} [get]
 func (r recycleHubHandler) FindByID(c echo.Context) error {
 	id := c.Param("id")
 	data, err := r.RecycleHubUsecase.FindByID(c.Request().Context(), id)
@@ -80,6 +108,19 @@ func (r recycleHubHandler) FindByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, webResponse)
 }
 
+// RecycleHub Update
+// @Summary Update a Recycle Hub
+// @Description Update Recycle Hub by ID
+// @Tags RecycleHubs
+// @Accept json
+// @Produce json
+// @Param id path string true "recycle hub id" example("67cdcb62a50a990a870d928f")
+// @Param request body model.PayloadUpdateRecycleHub true "update recycle hub payload"
+// @Success 200 {object} model.WebResponse{data=model.ResponseRecycleHub} "Recycle Hub updated"
+// @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Security BearerAuth
+// @Router /api/recycle-hubs/{id} [put]
 func (r recycleHubHandler) Update(c echo.Context) error {
 	id := c.Param("id")
 	var payload model.PayloadUpdateRecycleHub
@@ -102,6 +143,16 @@ func (r recycleHubHandler) Update(c echo.Context) error {
 	return c.JSON(http.StatusOK, webResponse)
 }
 
+// RecycleHub Delete
+// @Summary Delete a Recycle Hub
+// @Description Delete Recycle Hub by ID
+// @Tags RecycleHubs
+// @Produce json
+// @Param id path string true "recycle hub id" example("67cdcb62a50a990a870d928f")
+// @Success 200 {object} model.WebResponse{data=string} "Recycle Hub deleted"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Security BearerAuth
+// @Router /api/recycle-hubs/{id} [delete]
 func (r recycleHubHandler) Delete(c echo.Context) error {
 	id := c.Param("id")
 	err := r.RecycleHubUsecase.Delete(c.Request().Context(), id)
