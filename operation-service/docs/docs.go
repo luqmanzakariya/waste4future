@@ -354,14 +354,19 @@ const docTemplate = `{
         },
         "/api/orders": {
             "get": {
-                "description": "Find All Orders",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find All Orders by user token",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "Orders"
                 ],
-                "summary": "FindAll Orders",
+                "summary": "FindAll My Orders",
                 "responses": {
                     "200": {
                         "description": "Order list",
@@ -386,74 +391,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Add and register new Order",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Create an Order",
-                "parameters": [
-                    {
-                        "description": "create order payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.PayloadCreateOrder"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order created",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.ResponseOrder"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
                         "schema": {
                             "allOf": [
                                 {
@@ -536,65 +473,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/orders/save": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Save Order Detail ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Save Order Detail ID",
-                "responses": {
-                    "200": {
-                        "description": "Order created",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.ResponseOrder"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/api/orders/scheduler-shipping": {
             "get": {
                 "description": "SchedulerShipping Update Shipping And Orders",
@@ -621,279 +499,6 @@ const docTemplate = `{
                                             "items": {
                                                 "$ref": "#/definitions/model.Order"
                                             }
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/api/orders/{id}": {
-            "get": {
-                "description": "Find Order By ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "FindById an Order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "address id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Address found",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.ResponseOrder"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update Order By ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "Update an Order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "order id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "update order payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.PayloadUpdateOrder"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order updated",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.ResponseOrder"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete Order By ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Orders"
-                ],
-                "summary": "DeleteById an Order",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "order id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order deleted",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
                                         }
                                     }
                                 }
@@ -1917,16 +1522,6 @@ const docTemplate = `{
                 }
             }
         },
-        "model.PayloadCreateOrder": {
-            "description": "PayloadCreateOrder details.",
-            "type": "object",
-            "properties": {
-                "note": {
-                    "type": "string",
-                    "example": "mohon hati hati karena terdapat barang pecah belah"
-                }
-            }
-        },
         "model.PayloadCreateOrderDetail": {
             "type": "object",
             "required": [
@@ -1997,22 +1592,6 @@ const docTemplate = `{
                         }
                     ],
                     "example": "inactive"
-                }
-            }
-        },
-        "model.PayloadUpdateOrder": {
-            "description": "PayloadUpdateOrder details.",
-            "type": "object",
-            "properties": {
-                "note": {
-                    "type": "string",
-                    "example": "40.7128"
-                },
-                "orderDetailIDs": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 }
             }
         },

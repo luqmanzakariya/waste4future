@@ -13,6 +13,7 @@ import (
 type IOrderRepository interface {
 	Create(ctx context.Context, order model.Order, userId int64) (model.Order, error)
 	ReadAll(ctx context.Context) ([]model.Order, error)
+	ReadAllByUserID(ctx context.Context, userId int64) ([]model.Order, error)
 	ReadByID(ctx context.Context, id string) (model.Order, error)
 	Update(ctx context.Context, id string, address model.Order) (model.Order, error)
 	Delete(ctx context.Context, id string) error
@@ -47,6 +48,29 @@ func (o *orderRepository) Create(ctx context.Context, order model.Order, userId 
 
 	order.ID = insertedID
 	return order, nil
+}
+
+func (o *orderRepository) ReadAllByUserID(ctx context.Context, userId int64) ([]model.Order, error) {
+	// Initialize as empty slice
+	orders := make([]model.Order, 0)
+
+	// Create filter for shipping_status = "pickup"
+	filter := bson.M{
+		"user_id": userId, // Match the user ID
+	}
+
+	// Find all matching orders
+	cursor, err := o.OrderCollection.Find(ctx, filter)
+	if err != nil {
+		return orders, err
+	}
+
+	// Decode results into orders slice
+	if err = cursor.All(ctx, &orders); err != nil {
+		return orders, err
+	}
+
+	return orders, nil
 }
 
 func (o *orderRepository) ReadAll(ctx context.Context) ([]model.Order, error) {

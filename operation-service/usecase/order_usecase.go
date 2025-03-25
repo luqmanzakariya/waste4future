@@ -14,6 +14,7 @@ import (
 type IOrderUsecase interface {
 	Create(ctx context.Context, payload model.PayloadCreateOrder, userId int64) (model.ResponseOrder, error)
 	FindAll(ctx context.Context) ([]model.Order, error)
+	FindAllByUserID(ctx context.Context, userId int64) ([]model.Order, error)
 	FindByID(ctx context.Context, id string) (model.ResponseOrder, error)
 	Update(ctx context.Context, id string, payload model.PayloadUpdateOrder) (model.ResponseOrder, error)
 	Delete(ctx context.Context, id string) error
@@ -84,6 +85,16 @@ func (o *orderUsecase) Create(ctx context.Context, payload model.PayloadCreateOr
 	}
 
 	return response, nil
+}
+
+func (o *orderUsecase) FindAllByUserID(ctx context.Context, userId int64) ([]model.Order, error) {
+	var orders []model.Order
+	orders, err := o.OrderRepo.ReadAllByUserID(ctx, userId)
+	if err != nil {
+		return orders, err
+	}
+
+	return orders, nil
 }
 
 func (o *orderUsecase) FindAll(ctx context.Context) ([]model.Order, error) {
