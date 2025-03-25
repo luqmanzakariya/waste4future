@@ -9,6 +9,7 @@ import (
 	pbRecycle "operation-service/pb/recycle_hub"
 	pbUser "operation-service/pb/user"
 	"operation-service/repository"
+	"os"
 	"strconv"
 	"time"
 
@@ -73,6 +74,15 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, err
 	}
 
+	// 2.a Get recycle hub details
+	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{Id: payload.RecycleHubID})
+	if err != nil {
+		if status.Code(err) == codes.NotFound {
+			return model.ResponseOrderDetail{}, errors.New("recycle hub not found")
+		}
+		return model.ResponseOrderDetail{}, errors.New("failed to fetch recycle hub: " + err.Error())
+	}
+
 	// 1.a Get origin address
 	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.OriginAddressID})
 	if err != nil {
@@ -83,21 +93,12 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 	}
 
 	// 1.b Get destination address
-	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.DestinationAddressID})
+	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: recycleResp.AddressId})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return model.ResponseOrderDetail{}, errors.New("destination address not found")
 		}
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch destination address: " + err.Error())
-	}
-
-	// 2.a Get recycle hub details
-	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{Id: payload.RecycleHubID})
-	if err != nil {
-		if status.Code(err) == codes.NotFound {
-			return model.ResponseOrderDetail{}, errors.New("recycle hub not found")
-		}
-		return model.ResponseOrderDetail{}, errors.New("failed to fetch recycle hub: " + err.Error())
 	}
 
 	// 2.b Get waste price
@@ -127,9 +128,22 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		return model.ResponseOrderDetail{}, errors.New("invalid destination longitude")
 	}
 
-	// 1.d Calculate delivery price
+	// Get fee per km from environment variable
+	feePerKmStr := os.Getenv("FEE_PER_KM")
+	if feePerKmStr == "" {
+		return model.ResponseOrderDetail{}, errors.New("FEE_PER_KM environment variable not set")
+	}
+	feePerKm, err := strconv.ParseFloat(feePerKmStr, 64)
+	if err != nil {
+		return model.ResponseOrderDetail{}, errors.New("invalid FEE_PER_KM value: " + err.Error())
+	}
+
+	// 1.d Calculate distance and validate
 	distance := calculateDistance(originLat, originLon, destLat, destLon)
-	deliveryPrice := distance * 15000 // 15,000 per km
+	if distance > 50 {
+		return model.ResponseOrderDetail{}, errors.New("order cannot be placed: distance exceeds 50km")
+	}
+	deliveryPrice := distance * feePerKm
 
 	// 2.c Calculate subtotal
 	subTotal := payload.WasteWeight * wasteResp.Price
@@ -140,7 +154,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		WasteWeight:          payload.WasteWeight,
 		SubTotal:             subTotal,
 		OriginAddressID:      payload.OriginAddressID,
-		DestinationAddressID: payload.DestinationAddressID,
+		DestinationAddressID: recycleResp.AddressId,
 		DeliveryPrice:        deliveryPrice,
 		CreatedAt:            time.Now(),
 		UpdatedAt:            time.Now(),
@@ -181,16 +195,6 @@ func (u *orderDetailUsecase) Update(ctx context.Context, id string, payload mode
 		return model.ResponseOrderDetail{}, errors.New("order detail not found")
 	}
 
-	// Get addresses
-	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.OriginAddressID})
-	if err != nil {
-		return model.ResponseOrderDetail{}, errors.New("failed to fetch origin address: " + err.Error())
-	}
-	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.DestinationAddressID})
-	if err != nil {
-		return model.ResponseOrderDetail{}, errors.New("failed to fetch destination address: " + err.Error())
-	}
-
 	// Get waste price
 	recycleResp, err := u.RecycleHubClient.GetRecycleHubByID(ctx, &pbRecycle.GetRecycleHubByIDRequest{Id: existing.RecycleHubID})
 	if err != nil {
@@ -201,13 +205,36 @@ func (u *orderDetailUsecase) Update(ctx context.Context, id string, payload mode
 		return model.ResponseOrderDetail{}, errors.New("failed to fetch waste price: " + err.Error())
 	}
 
-	// Calculate distance and delivery price
+	// Get addresses
+	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.OriginAddressID})
+	if err != nil {
+		return model.ResponseOrderDetail{}, errors.New("failed to fetch origin address: " + err.Error())
+	}
+	destResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: recycleResp.AddressId})
+	if err != nil {
+		return model.ResponseOrderDetail{}, errors.New("failed to fetch destination address: " + err.Error())
+	}
+
+	// Calculate distance and validate
 	originLat, _ := strconv.ParseFloat(originResp.Latitude, 64)
 	originLon, _ := strconv.ParseFloat(originResp.Longitude, 64)
 	destLat, _ := strconv.ParseFloat(destResp.Latitude, 64)
 	destLon, _ := strconv.ParseFloat(destResp.Longitude, 64)
 	distance := calculateDistance(originLat, originLon, destLat, destLon)
-	deliveryPrice := distance * 15000
+	if distance > 50 {
+		return model.ResponseOrderDetail{}, errors.New("order cannot be updated: distance exceeds 50km")
+	}
+
+	// Get fee per km from environment variable
+	feePerKmStr := os.Getenv("FEE_PER_KM")
+	if feePerKmStr == "" {
+		return model.ResponseOrderDetail{}, errors.New("FEE_PER_KM environment variable not set")
+	}
+	feePerKm, err := strconv.ParseFloat(feePerKmStr, 64)
+	if err != nil {
+		return model.ResponseOrderDetail{}, errors.New("invalid FEE_PER_KM value: " + err.Error())
+	}
+	deliveryPrice := distance * feePerKm
 
 	// Calculate subtotal
 	subTotal := payload.WasteWeight * wasteResp.Price
@@ -219,7 +246,7 @@ func (u *orderDetailUsecase) Update(ctx context.Context, id string, payload mode
 		WasteWeight:          payload.WasteWeight,
 		SubTotal:             subTotal,
 		OriginAddressID:      payload.OriginAddressID,
-		DestinationAddressID: payload.DestinationAddressID,
+		DestinationAddressID: recycleResp.AddressId,
 		DeliveryPrice:        deliveryPrice,
 		CreatedAt:            existing.CreatedAt,
 		UpdatedAt:            time.Now(),
