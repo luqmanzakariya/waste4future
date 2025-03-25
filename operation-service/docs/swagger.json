@@ -1,7 +1,7 @@
 {
     "schemes": [
-        "http",
-        "https"
+        "https",
+        "http"
     ],
     "swagger": "2.0",
     "info": {
@@ -10,7 +10,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "localhost:8080",
+    "host": "operation-service-84457363535.asia-southeast2.run.app",
     "basePath": "/",
     "paths": {
         "/api/drivers": {
