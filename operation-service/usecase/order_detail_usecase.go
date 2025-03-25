@@ -6,7 +6,7 @@ import (
 	"math"
 	"operation-service/model"
 	pbAddress "operation-service/pb/address"
-	pbRecycle "operation-service/pb/recyclehub"
+	pbRecycle "operation-service/pb/recycle_hub"
 	pbUser "operation-service/pb/user"
 	"operation-service/repository"
 	"strconv"
