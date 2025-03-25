@@ -16,18 +16,181 @@ type ITransactionUsecase interface {
 	FindByID(ctx context.Context, id string) (model.ResponseTransaction, error)
 	Update(ctx context.Context, id string, payload model.PayloadUpdateTransaction) (model.ResponseTransaction, error)
 	Delete(ctx context.Context, id string) error
+	ApprovePayment(ctx context.Context, id string) (model.ResponseTransaction, error)
+	RejectPayment(ctx context.Context, id string) (model.ResponseTransaction, error)
 }
 
 type transactionUsecase struct {
 	TransactionRepo repository.ITransactionRepository
 	Validate        *validator.Validate
+	OrderRepo       repository.IOrderRepository
+	DriverRepo      repository.IDriverRepository
 }
 
-func NewTransactionUsecase(transactionRepo repository.ITransactionRepository, validate *validator.Validate) ITransactionUsecase {
+func NewTransactionUsecase(transactionRepo repository.ITransactionRepository, validate *validator.Validate, orderRepo repository.IOrderRepository, driverRepo repository.IDriverRepository) ITransactionUsecase {
 	return &transactionUsecase{
 		TransactionRepo: transactionRepo,
 		Validate:        validate,
+		OrderRepo:       orderRepo,
+		DriverRepo:      driverRepo,
 	}
+}
+
+func (t *transactionUsecase) ApprovePayment(ctx context.Context, id string) (model.ResponseTransaction, error) {
+	// # Find Driver
+	drivers, err := t.DriverRepo.ReadAllActive(ctx)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("failed find drivers")
+	}
+
+	transaction, err := t.TransactionRepo.ReadByID(ctx, id)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("transaction not found")
+	}
+
+	// # Update Transaction
+	payloadUpdate := model.Transaction{
+		ID:              transaction.ID,
+		OrderID:         transaction.OrderID,
+		PaymentMethod:   transaction.PaymentMethod,
+		GrandTotal:      transaction.GrandTotal,
+		PaymentStatus:   model.PaymentStatusCompleted,
+		TransactionDate: transaction.TransactionDate,
+		CreatedAt:       transaction.CreatedAt,
+		UpdatedAt:       transaction.UpdatedAt,
+	}
+
+	// # Update Transaction
+	_, err = t.TransactionRepo.Update(ctx, id, payloadUpdate)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("failed update transaction")
+	}
+
+	driverId := ""
+	if len(drivers) > 0 {
+		driverId = drivers[0].ID.Hex()
+
+		foundDriver, err := t.DriverRepo.ReadByID(ctx, drivers[0].ID.Hex())
+		if err != nil {
+			return model.ResponseTransaction{}, errors.New("failed found driver")
+		}
+
+		// # Find Assigned Driver Detail
+		assignedDriver := model.Driver{
+			ID:           foundDriver.ID,
+			Name:         foundDriver.Name,
+			Phone:        foundDriver.Phone,
+			LicensePlate: foundDriver.LicensePlate,
+			Status:       model.DriverStatusWorking,
+			CreatedAt:    foundDriver.CreatedAt,
+			UpdatedAt:    time.Now(),
+		}
+
+		_, err = t.DriverRepo.Update(ctx, drivers[0].ID.Hex(), assignedDriver)
+		if err != nil {
+			return model.ResponseTransaction{}, errors.New("failed found driver")
+		}
+	}
+
+	// # Find Order
+	order, err := t.OrderRepo.ReadByID(ctx, transaction.OrderID)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("failed found order")
+	}
+
+	// # Payload Update Order
+	payloadUpdateOrder := model.Order{
+		ID:              order.ID,
+		UserID:          order.UserID,
+		DriverID:        driverId,
+		OrderDetailIDs:  order.OrderDetailIDs,
+		OrderDate:       order.OrderDate,
+		OrderStatus:     model.OrderStatusPaid,
+		ShippingStatus:  model.ShippingStatusPickup,
+		UpdatedShipping: time.Now(),
+		Note:            order.Note,
+		CreatedAt:       order.CreatedAt,
+		UpdatedAt:       time.Now(),
+	}
+
+	// # Update Order
+	_, err = t.OrderRepo.Update(ctx, order.ID.Hex(), payloadUpdateOrder)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("failed update order")
+	}
+
+	response := model.ResponseTransaction{
+		ID:              payloadUpdate.ID.Hex(),
+		OrderID:         payloadUpdate.OrderID,
+		PaymentMethod:   payloadUpdate.PaymentMethod,
+		GrandTotal:      payloadUpdate.GrandTotal,
+		PaymentStatus:   payloadUpdate.PaymentStatus,
+		TransactionDate: payloadUpdate.TransactionDate,
+		CreatedAt:       payloadUpdate.CreatedAt,
+		UpdatedAt:       payloadUpdate.UpdatedAt,
+	}
+
+	return response, nil
+}
+
+func (t *transactionUsecase) RejectPayment(ctx context.Context, id string) (model.ResponseTransaction, error) {
+	transaction, err := t.TransactionRepo.ReadByID(ctx, id)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("transaction not found")
+	}
+
+	payloadUpdate := model.Transaction{
+		ID:              transaction.ID,
+		OrderID:         transaction.OrderID,
+		PaymentMethod:   transaction.PaymentMethod,
+		GrandTotal:      transaction.GrandTotal,
+		PaymentStatus:   model.PaymentStatusRejected,
+		TransactionDate: transaction.TransactionDate,
+		CreatedAt:       transaction.CreatedAt,
+		UpdatedAt:       transaction.UpdatedAt,
+	}
+
+	_, err = t.TransactionRepo.Update(ctx, id, payloadUpdate)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("failed update transaction")
+	}
+
+	order, err := t.OrderRepo.ReadByID(ctx, transaction.OrderID)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("failed found order")
+	}
+
+	payloadUpdateOrder := model.Order{
+		ID:              order.ID,
+		UserID:          order.UserID,
+		DriverID:        order.DriverID,
+		OrderDetailIDs:  order.OrderDetailIDs,
+		OrderDate:       order.OrderDate,
+		OrderStatus:     model.OrderStatusRejected,
+		ShippingStatus:  order.ShippingStatus,
+		UpdatedShipping: time.Now(),
+		Note:            order.Note,
+		CreatedAt:       order.CreatedAt,
+		UpdatedAt:       order.UpdatedAt,
+	}
+
+	_, err = t.OrderRepo.Update(ctx, order.ID.Hex(), payloadUpdateOrder)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("failed update order")
+	}
+
+	response := model.ResponseTransaction{
+		ID:              payloadUpdate.ID.Hex(),
+		OrderID:         payloadUpdate.OrderID,
+		PaymentMethod:   payloadUpdate.PaymentMethod,
+		GrandTotal:      payloadUpdate.GrandTotal,
+		PaymentStatus:   payloadUpdate.PaymentStatus,
+		TransactionDate: payloadUpdate.TransactionDate,
+		CreatedAt:       payloadUpdate.CreatedAt,
+		UpdatedAt:       payloadUpdate.UpdatedAt,
+	}
+
+	return response, nil
 }
 
 func (t *transactionUsecase) Create(ctx context.Context, payload model.PayloadCreateTransaction) (model.ResponseTransaction, error) {

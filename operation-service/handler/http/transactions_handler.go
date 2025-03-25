@@ -31,6 +31,8 @@ func (t transactionHandler) InitRoutes(g *echo.Group) {
 	g.GET("/:id", t.FindByID, middleware.AuthMiddleware)
 	g.PUT("/:id", t.Update, middleware.AuthMiddleware)
 	g.DELETE("/:id", t.Delete, middleware.AuthMiddleware)
+	g.PUT("/approved/:id", t.ApprovePayment, middleware.AuthMiddleware)
+	g.PUT("/reject/:id", t.RejectPayment, middleware.AuthMiddleware)
 }
 
 // Transaction Create
@@ -185,6 +187,72 @@ func (t transactionHandler) Delete(c echo.Context) error {
 		Code:   http.StatusOK,
 		Status: "OK",
 		Data:   fmt.Sprintf("success deleted transaction with id: %s", id),
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
+}
+
+// Transaction Approved Payment
+// @Summary Update a Payment Status to Completed
+// @Description Update Status Payment to Completed By ID
+// @Tags Transactions
+// @Produce json
+// @Param id path string true "transaction id" example("67cdcb62a50a990a870d928f")
+// @Success 200 {object} model.WebResponse{data=model.ResponseTransaction} "Transaction updated"
+// @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Security BearerAuth
+// @Router /api/transactions/approved/{id} [PUT]
+func (t transactionHandler) ApprovePayment(c echo.Context) error {
+	id := c.Param("id")
+	var payload model.PayloadUpdateTransaction
+	err := c.Bind(&payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	updatedData, err := t.TransactionUsecase.ApprovePayment(c.Request().Context(), id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   updatedData,
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
+}
+
+// Transaction Reject Payment
+// @Summary Update a Payment Status to Reject
+// @Description Update Status Payment to Reject By ID
+// @Tags Transactions
+// @Produce json
+// @Param id path string true "transaction id" example("67cdcb62a50a990a870d928f")
+// @Success 200 {object} model.WebResponse{data=model.ResponseTransaction} "Transaction updated"
+// @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Security BearerAuth
+// @Router /api/transactions/reject/{id} [PUT]
+func (t transactionHandler) RejectPayment(c echo.Context) error {
+	id := c.Param("id")
+	var payload model.PayloadUpdateTransaction
+	err := c.Bind(&payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	updatedData, err := t.TransactionUsecase.RejectPayment(c.Request().Context(), id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   updatedData,
 	}
 
 	return c.JSON(http.StatusOK, webResponse)

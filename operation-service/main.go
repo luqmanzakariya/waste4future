@@ -134,7 +134,7 @@ func main() {
 		validator,
 	)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator, transactionRepo, orderDetailRepo)
-	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator)
+	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator, orderRepo, driverRepo)
 	driverUsecase := usecase.NewDriverUsecase(driverRepo, validator)
 
 	// # Oder Detail Routes & Handler
