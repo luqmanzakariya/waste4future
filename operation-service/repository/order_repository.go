@@ -18,6 +18,7 @@ type IOrderRepository interface {
 	Delete(ctx context.Context, id string) error
 	SaveOrderDetail(ctx context.Context, orderId string, userId int64) error
 	CheckoutOrder(ctx context.Context, userId int64) error
+	DeleteOrderDetailID(ctx context.Context, orderDetailId string, userId int64) error
 }
 
 type orderRepository struct {
@@ -235,6 +236,33 @@ func (o *orderRepository) CheckoutOrder(ctx context.Context, userId int64) error
 	_, err = o.OrderCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (o *orderRepository) DeleteOrderDetailID(ctx context.Context, orderDetailId string, userId int64) error {
+	// Define a filter to find the order by user_id and OrderStatus = "draft"
+	filter := bson.M{
+		"user_id":      userId,                 // Match the user ID
+		"order_status": model.OrderStatusDraft, // Match the order status
+	}
+
+	// Define an update to remove the orderDetailId from the array and update the timestamp
+	update := bson.M{
+		"$pull": bson.M{"order_detail_ids": orderDetailId}, // Remove from the array
+		"$set":  bson.M{"updated_at": time.Now()},          // Update the updated_at timestamp
+	}
+
+	// Perform the update operation
+	result, err := o.OrderCollection.UpdateOne(ctx, filter, update)
+	if err != nil {
+		return err
+	}
+
+	// Check if any document was modified
+	if result.MatchedCount == 0 {
+		return errors.New("no draft order found for this user")
 	}
 
 	return nil

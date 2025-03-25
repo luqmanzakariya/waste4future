@@ -1650,15 +1650,11 @@ const docTemplate = `{
         "model.PayloadCreateOrderDetail": {
             "type": "object",
             "required": [
-                "destination_address_id",
                 "origin_address_id",
                 "recycle_hub_id",
                 "waste_weight"
             ],
             "properties": {
-                "destination_address_id": {
-                    "type": "string"
-                },
                 "origin_address_id": {
                     "type": "string"
                 },
@@ -1715,14 +1711,10 @@ const docTemplate = `{
         "model.PayloadUpdateOrderDetail": {
             "type": "object",
             "required": [
-                "destination_address_id",
                 "origin_address_id",
                 "waste_weight"
             ],
             "properties": {
-                "destination_address_id": {
-                    "type": "string"
-                },
                 "origin_address_id": {
                     "type": "string"
                 },

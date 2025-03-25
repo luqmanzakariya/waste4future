@@ -115,8 +115,6 @@ definitions:
     type: object
   model.PayloadCreateOrderDetail:
     properties:
-      destination_address_id:
-        type: string
       origin_address_id:
         type: string
       recycle_hub_id:
@@ -124,7 +122,6 @@ definitions:
       waste_weight:
         type: number
     required:
-    - destination_address_id
     - origin_address_id
     - recycle_hub_id
     - waste_weight
@@ -159,14 +156,11 @@ definitions:
     type: object
   model.PayloadUpdateOrderDetail:
     properties:
-      destination_address_id:
-        type: string
       origin_address_id:
         type: string
       waste_weight:
         type: number
     required:
-    - destination_address_id
     - origin_address_id
     - waste_weight
     type: object
