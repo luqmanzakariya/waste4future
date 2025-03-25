@@ -10,7 +10,6 @@ import (
 	"operation-service/config"
 	_ "operation-service/docs"
 	handler "operation-service/handler/http"
-	httpHandler "operation-service/handler/http"
 	"operation-service/middleware"
 	"operation-service/repository"
 	"operation-service/usecase"
@@ -122,20 +121,22 @@ func main() {
 	driverRoutes := baseRoutes.Group("/drivers")
 	driverRepo := repository.NewDriverRepository(db)
 	driverUsecase := usecase.NewDriverUsecase(driverRepo, validator)
-	driverHttpHandler := httpHandler.NewDriverUsecase(driverUsecase)
+	driverHttpHandler := handler.NewDriverUsecase(driverUsecase)
 	driverHttpHandler.InitRoutes(driverRoutes)
 
 	// # Dependency Injection Order
 	orderRoutes := baseRoutes.Group("/orders")
 	orderRepo := repository.NewOrderRepository(db)
 	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator)
-	orderHttpHandler := httpHandler.NewOrderHandler(orderUsecase, userGrpcClient)
+	orderHttpHandler := handler.NewOrderHandler(orderUsecase, userGrpcClient)
 	orderHttpHandler.InitRoutes(orderRoutes)
 
-	// # Dependency Injection - Transaction
+	// # Dependency Injection Transaction
 	transactionRoutes := baseRoutes.Group("/transactions")
-	transactionRepo := repository.NewTransactionRepository(db, "transactions")
-	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator, orderRepo)
+	transactionRepo := repository.NewTransactionRepository(db)
+	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator)
+	transactionHttpHandler := handler.NewTransactionHandler(transactionUsecase, userGrpcClient)
+	transactionHttpHandler.InitRoutes(transactionRoutes)
 
 	// # Dependency Injection Order Detail
 	orderDetailRoutes := baseRoutes.Group("/order-details")
@@ -152,19 +153,9 @@ func main() {
 	orderDetailHttpHandler := handler.NewOrderDetailHandler(orderDetailUsecase, userGrpcClient)
 	orderDetailHttpHandler.InitRoutes(orderDetailRoutes)
 
-	transactionHttpHandler := httpHandler.NewTransactionHandler(
-		*transactionUsecase,
-		validator,
-		userGrpcClient,
-	)
-	transactionHttpHandler.InitRoutes(transactionRoutes)
-
 	// # Swagger documentation route
 	e.File("/swagger/doc.json", "docs/swagger.json")
 	e.File("/swagger/doc.yaml", "docs/swagger.yaml")
-	e.GET("/swagger/*", echoSwagger.WrapHandler)
-
-	// # Swagger documentation route
 	e.GET("/swagger/*", echoSwagger.WrapHandler)
 
 	// # Get PORT from ENV

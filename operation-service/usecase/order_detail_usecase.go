@@ -296,5 +296,14 @@ func (u *orderDetailUsecase) FindByID(ctx context.Context, id string) (model.Res
 }
 
 func (u *orderDetailUsecase) Delete(ctx context.Context, id string) error {
+	res, err := u.OrderDetailRepo.ReadByID(ctx, id)
+	if err != nil {
+		return errors.New("order detail not found")
+	}
+
+	err = u.OrderRepo.DeleteOrderDetailID(ctx, id, int64(res.UserID))
+	if err != nil {
+		return errors.New("failed to delete order detail to order: " + err.Error())
+	}
 	return u.OrderDetailRepo.Delete(ctx, id)
 }

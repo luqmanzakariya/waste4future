@@ -2,157 +2,139 @@ package usecase
 
 import (
 	"context"
-	"time"
-
+	"errors"
 	"operation-service/model"
 	"operation-service/repository"
-	"operation-service/utils"
+	"time"
 
 	"github.com/go-playground/validator/v10"
-	"github.com/pkg/errors"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
-// Transaction represents a payment transaction in the system
-type Transaction struct {
-	ID              primitive.ObjectID `bson:"_id,omitempty"`
-	OrderID         primitive.ObjectID `bson:"order_id"`
-	PaymentMethod   string             `bson:"payment_method"`
-	GrandTotal      float64            `bson:"grand_total"`
-	PaymentStatus   string             `bson:"payment_status"`
-	TransactionDate time.Time          `bson:"transaction_date"`
+type ITransactionUsecase interface {
+	Create(ctx context.Context, payload model.PayloadCreateTransaction) (model.ResponseTransaction, error)
+	FindAll(ctx context.Context) ([]model.Transaction, error)
+	FindByID(ctx context.Context, id string) (model.ResponseTransaction, error)
+	Update(ctx context.Context, id string, payload model.PayloadUpdateTransaction) (model.ResponseTransaction, error)
+	Delete(ctx context.Context, id string) error
 }
 
-// TransactionRepository defines the interface for transaction persistence operations
-type TransactionRepository interface {
-	Create(ctx context.Context, transaction *model.Transaction) error
-	GetByID(ctx context.Context, id primitive.ObjectID) (*model.Transaction, error)
-	GetByOrderID(ctx context.Context, orderID string) ([]*model.Transaction, error)
-	UpdateStatus(ctx context.Context, id primitive.ObjectID, status string) error
-	Delete(ctx context.Context, id primitive.ObjectID) error
-	ListByDateRange(ctx context.Context, start, end time.Time) ([]*model.Transaction, error)
+type transactionUsecase struct {
+	TransactionRepo repository.ITransactionRepository
+	Validate        *validator.Validate
 }
 
-// TransactionUsecase implements the business logic for transaction operations
-type TransactionUsecase struct {
-	repo      TransactionRepository
-	validator *validator.Validate
-	orderRepo repository.IOrderRepository
-}
-
-// NewTransactionUsecase creates a new transaction usecase instance
-func NewTransactionUsecase(repo TransactionRepository, validator *validator.Validate, orderRepo repository.IOrderRepository) *TransactionUsecase {
-	return &TransactionUsecase{
-		repo:      repo,
-		validator: validator,
-		orderRepo: orderRepo,
+func NewTransactionUsecase(transactionRepo repository.ITransactionRepository, validate *validator.Validate) ITransactionUsecase {
+	return &transactionUsecase{
+		TransactionRepo: transactionRepo,
+		Validate:        validate,
 	}
 }
 
-// CreateTransaction handles the creation of a new transaction
-func (uc *TransactionUsecase) CreateTransaction(ctx context.Context, req *model.CreateTransactionRequest, userID int64) (*model.Transaction, error) {
-	// Validate request
-	if err := uc.validator.Struct(req); err != nil {
-		return nil, utils.ValidationError(err)
-	}
-
-	// Create new transaction model
-	transaction := model.NewTransaction(
-		req.OrderID,
-		req.PaymentMethod,
-		req.GrandTotal,
-	)
-
-	// Persist the transaction
-	if err := uc.repo.Create(ctx, transaction); err != nil {
-		return nil, errors.Wrap(err, "failed to create transaction")
-	}
-
-	err := uc.orderRepo.CheckoutOrder(ctx, userID)
+func (t *transactionUsecase) Create(ctx context.Context, payload model.PayloadCreateTransaction) (model.ResponseTransaction, error) {
+	err := t.Validate.Struct(payload)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to checkout order")
+		return model.ResponseTransaction{}, err
 	}
 
-	return transaction, nil
+	transaction := model.Transaction{
+		OrderID:         payload.OrderID,
+		PaymentMethod:   payload.PaymentMethod,
+		GrandTotal:      payload.GrandTotal,
+		PaymentStatus:   model.PaymentStatusPending,
+		TransactionDate: time.Now(),
+		CreatedAt:       time.Now(),
+		UpdatedAt:       time.Now(),
+	}
+
+	res, err := t.TransactionRepo.Create(ctx, transaction)
+	if err != nil {
+		return model.ResponseTransaction{}, err
+	}
+
+	response := model.ResponseTransaction{
+		ID:              res.ID.Hex(),
+		OrderID:         res.OrderID,
+		PaymentMethod:   res.PaymentMethod,
+		GrandTotal:      res.GrandTotal,
+		PaymentStatus:   res.PaymentStatus,
+		TransactionDate: res.TransactionDate,
+		CreatedAt:       res.CreatedAt,
+		UpdatedAt:       res.UpdatedAt,
+	}
+
+	return response, nil
 }
 
-// GetTransaction retrieves a transaction by its ID
-func (uc *TransactionUsecase) GetTransaction(ctx context.Context, id primitive.ObjectID) (*model.Transaction, error) {
-	if id.IsZero() {
-		return nil, errors.New("invalid transaction ID")
-	}
-
-	transaction, err := uc.repo.GetByID(ctx, id)
+func (t *transactionUsecase) FindAll(ctx context.Context) ([]model.Transaction, error) {
+	transactions, err := t.TransactionRepo.ReadAll(ctx)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to get transaction")
-	}
-
-	if transaction == nil {
-		return nil, errors.New("transaction not found")
-	}
-
-	return transaction, nil
-}
-
-// GetTransactionsByOrder retrieves all transactions for a specific order
-func (uc *TransactionUsecase) GetTransactionsByOrder(ctx context.Context, orderID string) ([]*model.Transaction, error) {
-	if orderID == "" {
-		return nil, errors.New("order ID is required")
-	}
-
-	transactions, err := uc.repo.GetByOrderID(ctx, orderID)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get transactions by order")
+		return nil, err
 	}
 
 	return transactions, nil
 }
 
-// UpdateTransactionStatus updates the payment status of a transaction
-func (uc *TransactionUsecase) UpdateTransactionStatus(ctx context.Context, id primitive.ObjectID, status string) error {
-	if id.IsZero() {
-		return errors.New("invalid transaction ID")
-	}
-
-	if !model.TransactionStatus(status).IsValidStatus() {
-		return errors.New("invalid payment status")
-	}
-
-	err := uc.repo.UpdateStatus(ctx, id, status)
+func (t *transactionUsecase) FindByID(ctx context.Context, id string) (model.ResponseTransaction, error) {
+	transaction, err := t.TransactionRepo.ReadByID(ctx, id)
 	if err != nil {
-		return errors.Wrap(err, "failed to update transaction status")
+		return model.ResponseTransaction{}, errors.New("transaction not found")
 	}
 
-	return nil
+	response := model.ResponseTransaction{
+		ID:              transaction.ID.Hex(),
+		OrderID:         transaction.OrderID,
+		PaymentMethod:   transaction.PaymentMethod,
+		GrandTotal:      transaction.GrandTotal,
+		PaymentStatus:   transaction.PaymentStatus,
+		TransactionDate: transaction.TransactionDate,
+		CreatedAt:       transaction.CreatedAt,
+		UpdatedAt:       transaction.UpdatedAt,
+	}
+
+	return response, nil
 }
 
-// DeleteTransaction removes a transaction from the system
-func (uc *TransactionUsecase) DeleteTransaction(ctx context.Context, id primitive.ObjectID) error {
-	if id.IsZero() {
-		return errors.New("invalid transaction ID")
-	}
-
-	err := uc.repo.Delete(ctx, id)
+func (t *transactionUsecase) Update(ctx context.Context, id string, payload model.PayloadUpdateTransaction) (model.ResponseTransaction, error) {
+	err := t.Validate.Struct(payload)
 	if err != nil {
-		return errors.Wrap(err, "failed to delete transaction")
+		return model.ResponseTransaction{}, err
 	}
 
-	return nil
+	transaction, err := t.TransactionRepo.ReadByID(ctx, id)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("transaction not found")
+	}
+
+	if payload.PaymentMethod != "" {
+		transaction.PaymentMethod = payload.PaymentMethod
+	}
+	if payload.GrandTotal != 0 {
+		transaction.GrandTotal = payload.GrandTotal
+	}
+	if payload.PaymentStatus != "" {
+		transaction.PaymentStatus = payload.PaymentStatus
+	}
+	transaction.UpdatedAt = time.Now()
+
+	updatedTransaction, err := t.TransactionRepo.Update(ctx, id, transaction)
+	if err != nil {
+		return model.ResponseTransaction{}, errors.New("error updating transaction")
+	}
+
+	response := model.ResponseTransaction{
+		ID:              updatedTransaction.ID.Hex(),
+		OrderID:         updatedTransaction.OrderID,
+		PaymentMethod:   updatedTransaction.PaymentMethod,
+		GrandTotal:      updatedTransaction.GrandTotal,
+		PaymentStatus:   updatedTransaction.PaymentStatus,
+		TransactionDate: updatedTransaction.TransactionDate,
+		CreatedAt:       updatedTransaction.CreatedAt,
+		UpdatedAt:       updatedTransaction.UpdatedAt,
+	}
+
+	return response, nil
 }
 
-// GetTransactionsByDateRange retrieves transactions within a specific date range
-func (uc *TransactionUsecase) GetTransactionsByDateRange(ctx context.Context, start, end time.Time) ([]*model.Transaction, error) {
-	if start.IsZero() || end.IsZero() {
-		return nil, errors.New("both start and end dates are required")
-	}
-	if end.Before(start) {
-		return nil, errors.New("end date must be after start date")
-	}
-
-	transactions, err := uc.repo.ListByDateRange(ctx, start, end)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get transactions by date range")
-	}
-
-	return transactions, nil
+func (t *transactionUsecase) Delete(ctx context.Context, id string) error {
+	return t.TransactionRepo.Delete(ctx, id)
 }

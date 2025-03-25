@@ -3,131 +3,116 @@ package repository
 import (
 	"context"
 	"errors"
+	"operation-service/model"
 	"time"
 
-	"operation-service/model"
-
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/v2/bson"
 	"go.mongodb.org/mongo-driver/v2/mongo"
-	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
-type TransactionRepository struct {
-	collection *mongo.Collection
+type ITransactionRepository interface {
+	Create(ctx context.Context, transaction model.Transaction) (model.Transaction, error)
+	ReadAll(ctx context.Context) ([]model.Transaction, error)
+	ReadByID(ctx context.Context, id string) (model.Transaction, error)
+	Update(ctx context.Context, id string, transaction model.Transaction) (model.Transaction, error)
+	Delete(ctx context.Context, id string) error
 }
 
-func NewTransactionRepository(db *mongo.Database, collectionName string) *TransactionRepository {
-	return &TransactionRepository{
-		collection: db.Collection(collectionName),
+type transactionRepository struct {
+	TransactionCollection *mongo.Collection
+}
+
+func NewTransactionRepository(db *mongo.Database) ITransactionRepository {
+	return &transactionRepository{
+		TransactionCollection: db.Collection("transactions"),
 	}
 }
 
-func (r *TransactionRepository) Create(ctx context.Context, transaction *model.Transaction) error {
-	if transaction == nil {
-		return errors.New("transaction is nil")
+func (t *transactionRepository) Create(ctx context.Context, transaction model.Transaction) (model.Transaction, error) {
+	res, err := t.TransactionCollection.InsertOne(ctx, transaction)
+	if err != nil {
+		return model.Transaction{}, err
 	}
 
-	if transaction.OrderID == "" {
-		return errors.New("order ID is required")
+	insertedID, ok := res.InsertedID.(bson.ObjectID)
+	if !ok {
+		return model.Transaction{}, errors.New("failed to get inserted ID")
 	}
 
-	_, err := r.collection.InsertOne(ctx, transaction)
-	return err
+	transaction.ID = insertedID
+	return transaction, nil
 }
 
-func (r *TransactionRepository) GetByID(ctx context.Context, id primitive.ObjectID) (*model.Transaction, error) {
-	if id.IsZero() {
-		return nil, errors.New("invalid transaction ID")
+func (t *transactionRepository) ReadAll(ctx context.Context) ([]model.Transaction, error) {
+	var transactions []model.Transaction
+	cursor, err := t.TransactionCollection.Find(ctx, bson.D{})
+	if err != nil {
+		return transactions, err
 	}
 
+	if err = cursor.All(ctx, &transactions); err != nil {
+		return transactions, err
+	}
+
+	return transactions, nil
+}
+
+func (t *transactionRepository) ReadByID(ctx context.Context, id string) (model.Transaction, error) {
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return model.Transaction{}, errors.New("invalid ID format")
+	}
+
+	filter := bson.M{"_id": objectID}
 	var transaction model.Transaction
-	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&transaction)
+	err = t.TransactionCollection.FindOne(ctx, filter).Decode(&transaction)
 	if err != nil {
-		if errors.Is(err, mongo.ErrNoDocuments) {
-			return nil, nil
+		if err == mongo.ErrNoDocuments {
+			return model.Transaction{}, errors.New("transaction not found")
 		}
-		return nil, err
+		return model.Transaction{}, err
 	}
 
-	return &transaction, nil
+	return transaction, nil
 }
 
-func (r *TransactionRepository) GetByOrderID(ctx context.Context, orderID string) ([]*model.Transaction, error) {
-	if orderID == "" {
-		return nil, errors.New("order ID is required")
-	}
-
-	cursor, err := r.collection.Find(ctx, bson.M{"order_id": orderID})
+func (t *transactionRepository) Update(ctx context.Context, id string, transaction model.Transaction) (model.Transaction, error) {
+	objectID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var transactions []*model.Transaction
-	if err := cursor.All(ctx, &transactions); err != nil {
-		return nil, err
+		return transaction, errors.New("invalid ID format")
 	}
 
-	return transactions, nil
-}
+	transaction.UpdatedAt = time.Now()
+	filter := bson.M{"_id": objectID}
+	update := bson.M{"$set": transaction}
 
-func (r *TransactionRepository) UpdateStatus(ctx context.Context, id primitive.ObjectID, status string) error {
-	if id.IsZero() {
-		return errors.New("invalid transaction ID")
-	}
-
-	if !model.TransactionStatus(status).IsValidStatus() {
-		return errors.New("invalid payment status")
-	}
-
-	update := bson.M{
-		"$set": bson.M{
-			"payment_status": status,
-			"updated_at":     time.Now(),
-		},
-	}
-
-	_, err := r.collection.UpdateByID(ctx, id, update)
-	return err
-}
-
-func (r *TransactionRepository) Delete(ctx context.Context, id primitive.ObjectID) error {
-	if id.IsZero() {
-		return errors.New("invalid transaction ID")
-	}
-
-	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
-	return err
-}
-
-func (r *TransactionRepository) ListByDateRange(ctx context.Context, start, end time.Time) ([]*model.Transaction, error) {
-	if start.IsZero() || end.IsZero() {
-		return nil, errors.New("both start and end dates are required")
-	}
-	if end.Before(start) {
-		return nil, errors.New("end date must be after start date")
-	}
-
-	filter := bson.M{
-		"transaction_date": bson.M{
-			"$gte": start,
-			"$lte": end,
-		},
-	}
-
-	opts := options.Find().SetSort(bson.D{{Key: "transaction_date", Value: 1}})
-
-	cursor, err := r.collection.Find(ctx, filter, opts)
+	res, err := t.TransactionCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return nil, err
-	}
-	defer cursor.Close(ctx)
-
-	var transactions []*model.Transaction
-	if err := cursor.All(ctx, &transactions); err != nil {
-		return nil, err
+		return transaction, err
 	}
 
-	return transactions, nil
+	if res.MatchedCount == 0 {
+		return transaction, errors.New("transaction not found")
+	}
+
+	return transaction, nil
+}
+
+func (t *transactionRepository) Delete(ctx context.Context, id string) error {
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.New("invalid ID format")
+	}
+
+	filter := bson.M{"_id": objectID}
+	res, err := t.TransactionCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if res.DeletedCount == 0 {
+		return errors.New("transaction not found")
+	}
+
+	return nil
 }
