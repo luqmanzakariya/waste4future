@@ -32,7 +32,7 @@ Waste4Future is an on-demand waste collection service that simplifies recycling 
 * Swagger
 * Testify?
 
-## Application Flow ❌
+## Application Flow
 
 ![Final Flow](./misc/flow.svg)
 
