@@ -74,11 +74,11 @@ definitions:
       status:
         type: string
     type: object
-host: address-service.example.com
+host: address-service-84457363535.asia-southeast2.run.app/api
 info:
   contact: {}
-  description: This is the documentation of Address Service API
-  title: Address Service API
+  description: This is the documentation of Waste4Future Address Service API
+  title: Waste4Future Address Service API
   version: "1.0"
 paths:
   /addresses:

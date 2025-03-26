@@ -1,141 +1,171 @@
-package http
+package handler
 
 import (
+	"fmt"
 	"net/http"
-	"recyclehub-service/model/web/request"
-	"recyclehub-service/model/web/response"
-	"recyclehub-service/usecase"
+	"reyclehub-service/middleware"
+	"reyclehub-service/model"
+	"reyclehub-service/usecase"
 
 	"github.com/labstack/echo/v4"
 )
 
-type RecycleHubHandler struct {
-	useCase usecase.IRecycleHubUsecase
+type recycleHubHandler struct {
+	RecycleHubUsecase usecase.IRecycleHubUsecase
 }
 
-func NewRecycleHubHandler(useCase usecase.IRecycleHubUsecase) *RecycleHubHandler {
-	return &RecycleHubHandler{useCase: useCase}
+func NewRecycleHubHandler(recycleHubUsecase usecase.IRecycleHubUsecase) recycleHubHandler {
+	return recycleHubHandler{
+		RecycleHubUsecase: recycleHubUsecase,
+	}
 }
 
-// CreateRecycleHub handles the HTTP POST request to create a new recycle hub.
+func (r recycleHubHandler) InitRoutes(g *echo.Group) {
+	g.POST("", r.Create)
+	g.GET("", r.FindAll)
+	g.GET("/:id", r.FindByID)
+	g.PUT("/:id", r.Update, middleware.AuthMiddleware)
+	g.DELETE("/:id", r.Delete, middleware.AuthMiddleware)
+}
 
-// CreateRecycleHub godoc
-// @Summary Create a new recycle hub
-// @Description Create a new recycle hub with the provided details
-// @Tags recycle-hubs
+// RecycleHub Create
+// @Summary Create a Recycle Hub
+// @Description Add and register new Recycle Hub
+// @Tags RecycleHubs
 // @Accept json
 // @Produce json
-// @Param request body request.RecycleHubCreateRequest true "Recycle Hub Creation Request"
-// @Success 201 {object} response.RecycleHubResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router /recycle-hubs [post]
-func (h *RecycleHubHandler) CreateRecycleHub(c echo.Context) error {
-	var req request.RecycleHubCreateRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Invalid request payload"})
-	}
-
-	recycleHub, err := h.useCase.Create(c.Request().Context(), req)
+// @Param request body model.PayloadCreateRecycleHub true "create recycle hub payload"
+// @Success 200 {object} model.WebResponse{data=model.ResponseRecycleHub} "Recycle Hub created"
+// @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Router /api/recycle-hubs [post]
+func (r recycleHubHandler) Create(c echo.Context) error {
+	var payload model.PayloadCreateRecycleHub
+	err := c.Bind(&payload)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusCreated, recycleHub)
-}
 
-// GetAllRecycleHubs handles the HTTP GET request to retrieve all recycle hubs.
-
-// GetAllRecycleHubs godoc
-// @Summary Get all recycle hubs
-// @Description Retrieve a list of all recycle hubs
-// @Tags recycle-hubs
-// @Accept json
-// @Produce json
-// @Success 200 {object} response.RecycleHubListResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router /recycle-hubs [get]
-func (h *RecycleHubHandler) GetAllRecycleHubs(c echo.Context) error {
-	recycleHubs, err := h.useCase.FindAll(c.Request().Context())
+	created, err := r.RecycleHubUsecase.Create(c.Request().Context(), payload)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, recycleHubs)
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   created,
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
 }
 
-// GetRecycleHubByID handles the HTTP GET request to retrieve a specific recycle hub by ID.
-
-// GetRecycleHubByID godoc
-// @Summary Get a recycle hub by ID
-// @Description Retrieve a specific recycle hub by its ID
-// @Tags recycle-hubs
-// @Accept json
+// RecycleHub FindAll
+// @Summary FindAll Recycle Hubs
+// @Description Retrieve all Recycle Hubs
+// @Tags RecycleHubs
 // @Produce json
-// @Param id path string true "Recycle Hub ID"
-// @Success 200 {object} response.RecycleHubResponse
-// @Failure 404 {object} response.ErrorResponse
-// @Router /recycle-hubs/{id} [get]
-func (h *RecycleHubHandler) GetRecycleHubByID(c echo.Context) error {
+// @Success 200 {object} model.WebResponse{data=[]model.RecycleHub} "Recycle Hubs list"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Router /api/recycle-hubs [get]
+func (r recycleHubHandler) FindAll(c echo.Context) error {
+	recycleHubs, err := r.RecycleHubUsecase.FindAll(c.Request().Context())
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   recycleHubs,
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
+}
+
+// RecycleHub FindById
+// @Summary Find Recycle Hub by ID
+// @Description Retrieve a Recycle Hub by its ID
+// @Tags RecycleHubs
+// @Produce json
+// @Param id path string true "recycle hub id" example("67cdcb62a50a990a870d928f")
+// @Success 200 {object} model.WebResponse{data=model.ResponseRecycleHub} "Recycle Hub found"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Router /api/recycle-hubs/{id} [get]
+func (r recycleHubHandler) FindByID(c echo.Context) error {
 	id := c.Param("id")
-	recycleHub, err := h.useCase.FindById(c.Request().Context(), id)
+	data, err := r.RecycleHubUsecase.FindByID(c.Request().Context(), id)
 	if err != nil {
-		return c.JSON(http.StatusNotFound, response.ErrorResponse{Message: "Recycle hub not found"})
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, recycleHub)
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   data,
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
 }
 
-// UpdateRecycleHub handles the HTTP PUT request to update an existing recycle hub.
-
-// UpdateRecycleHub godoc
-// @Summary Update an existing recycle hub
-// @Description Update an existing recycle hub with the provided details
-// @Tags recycle-hubs
+// RecycleHub Update
+// @Summary Update a Recycle Hub
+// @Description Update Recycle Hub by ID
+// @Tags RecycleHubs
 // @Accept json
 // @Produce json
-// @Param id path string true "Recycle Hub ID"
-// @Param request body request.RecycleHubUpdateRequest true "Recycle Hub Update Request"
-// @Success 200 {object} response.RecycleHubResponse
-// @Failure 400 {object} response.ErrorResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router /recycle-hubs/{id} [put]
-func (h *RecycleHubHandler) UpdateRecycleHub(c echo.Context) error {
+// @Param id path string true "recycle hub id" example("67cdcb62a50a990a870d928f")
+// @Param request body model.PayloadUpdateRecycleHub true "update recycle hub payload"
+// @Success 200 {object} model.WebResponse{data=model.ResponseRecycleHub} "Recycle Hub updated"
+// @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Security BearerAuth
+// @Router /api/recycle-hubs/{id} [put]
+func (r recycleHubHandler) Update(c echo.Context) error {
 	id := c.Param("id")
-	var req request.RecycleHubUpdateRequest
-	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, response.ErrorResponse{Message: "Invalid request payload"})
-	}
-
-	recycleHub, err := h.useCase.Update(c.Request().Context(), req, id)
+	var payload model.PayloadUpdateRecycleHub
+	err := c.Bind(&payload)
 	if err != nil {
-		return c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, recycleHub)
+
+	updatedData, err := r.RecycleHubUsecase.Update(c.Request().Context(), id, payload)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   updatedData,
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
 }
 
-// DeleteRecycleHub handles the HTTP DELETE request to delete a recycle hub by ID.
-
-// DeleteRecycleHub godoc
-// @Summary Delete a recycle hub by ID
-// @Description Delete a specific recycle hub by its ID
-// @Tags recycle-hubs
-// @Accept json
+// RecycleHub Delete
+// @Summary Delete a Recycle Hub
+// @Description Delete Recycle Hub by ID
+// @Tags RecycleHubs
 // @Produce json
-// @Param id path string true "Recycle Hub ID"
-// @Success 200 {object} response.SuccessResponse
-// @Failure 500 {object} response.ErrorResponse
-// @Router /recycle-hubs/{id} [delete]
-func (h *RecycleHubHandler) DeleteRecycleHub(c echo.Context) error {
+// @Param id path string true "recycle hub id" example("67cdcb62a50a990a870d928f")
+// @Success 200 {object} model.WebResponse{data=string} "Recycle Hub deleted"
+// @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
+// @Security BearerAuth
+// @Router /api/recycle-hubs/{id} [delete]
+func (r recycleHubHandler) Delete(c echo.Context) error {
 	id := c.Param("id")
-	if err := h.useCase.Delete(c.Request().Context(), id); err != nil {
-		return c.JSON(http.StatusInternalServerError, response.ErrorResponse{Message: err.Error()})
+	err := r.RecycleHubUsecase.Delete(c.Request().Context(), id)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	return c.JSON(http.StatusOK, response.SuccessResponse{Message: "Recycle hub deleted successfully"})
-}
 
-// RegisterRoutes registers the recycle hub routes with the Echo instance.
-func (h *RecycleHubHandler) RegisterRoutes(e *echo.Echo) {
-	e.POST("/recycle-hubs", h.CreateRecycleHub)
-	e.GET("/recycle-hubs", h.GetAllRecycleHubs)
-	e.GET("/recycle-hubs/:id", h.GetRecycleHubByID)
-	e.PUT("/recycle-hubs/:id", h.UpdateRecycleHub)
-	e.DELETE("/recycle-hubs/:id", h.DeleteRecycleHub)
+	res := fmt.Sprintf("success deleted recycle hub with id: %s", id)
+	webResponse := model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   res,
+	}
+
+	return c.JSON(http.StatusOK, webResponse)
 }

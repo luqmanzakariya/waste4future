@@ -9,6 +9,7 @@ import (
 // Order Status Enum
 type OrderStatus string
 
+const OrderStatusDraft OrderStatus = "draft"
 const OrderStatusPending OrderStatus = "pending"
 const OrderStatusPaid OrderStatus = "paid"
 const OrderStatusRejected OrderStatus = "rejected"
@@ -16,13 +17,16 @@ const OrderStatusRejected OrderStatus = "rejected"
 // Shipping Status Enum
 type ShippingStatus string
 
+const ShippingStatusUnassigned ShippingStatus = "unassigned"
 const ShippingStatusPickup ShippingStatus = "pickup"
 const ShippingStatusDelivery ShippingStatus = "delivery"
 const ShippingStatusFinish ShippingStatus = "finish"
 
+type OrderDetailIDs []string
+
 type Order struct {
 	ID              bson.ObjectID  `bson:"_id,omitempty" json:"id"`
-	UserID          int            `bson:"user_id" json:"user_id"`
+	UserID          int64          `bson:"user_id" json:"user_id"`
 	DriverID        string         `bson:"driver_id" json:"driver_id"`
 	OrderDetailIDs  []string       `bson:"order_detail_ids" json:"order_detail_ids"`
 	OrderDate       time.Time      `bson:"order_date" json:"order_date"`
@@ -60,14 +64,4 @@ type ResponseOrder struct {
 	Note            string         `json:"note"`
 	CreatedAt       time.Time      `json:"created_at"`
 	UpdatedAt       time.Time      `json:"updated_at"`
-}
-
-
-// # flow order status draft belum ada
-type ResponseAddToCart struct {
-	OrderID string;
-}
-
-type PayloadAddToCart struct {
-
 }

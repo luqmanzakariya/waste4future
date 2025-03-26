@@ -1,52 +1,63 @@
-package grpc
+package handler
 
 import (
 	"context"
-	"recyclehub-service/pb/recyclehub"
-	"recyclehub-service/usecase"
+	pb "reyclehub-service/pb/recycle_hub"
+	"reyclehub-service/usecase"
 
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-type WasteTypeServer struct {
-	recyclehub.UnimplementedWasteTypeServiceServer
-	useCase usecase.IWasteTypeUsecase
+type WasteTypeGRPCHandler struct {
+	pb.UnimplementedWasteTypeServiceServer
+	WasteTypeUsecase usecase.IWasteTypeUsecase
 }
 
-func NewWasteTypeServer(useCase usecase.IWasteTypeUsecase) *WasteTypeServer {
-	return &WasteTypeServer{useCase: useCase}
+func NewWasteTypeGRPCHandler(wasteTypeUsecase usecase.IWasteTypeUsecase) *WasteTypeGRPCHandler {
+	return &WasteTypeGRPCHandler{
+		WasteTypeUsecase: wasteTypeUsecase,
+	}
 }
 
-// GetAllWasteTypes handles the gRPC request to retrieve all waste types.
-func (s *WasteTypeServer) GetAllWasteTypes(ctx context.Context, req *recyclehub.Empty) (*recyclehub.WasteTypeList, error) {
-	wasteTypes, err := s.useCase.FindAll(ctx)
-	if err != nil {
-		return nil, status.Errorf(codes.Internal, "Failed to retrieve waste types: %v", err)
+func (h *WasteTypeGRPCHandler) GetWasteTypeByID(ctx context.Context, req *pb.GetWasteTypeByIDRequest) (*pb.WasteTypeResponse, error) {
+	id := req.GetId()
+	if id == "" {
+		return nil, status.Error(codes.InvalidArgument, "waste type ID is required")
 	}
 
-	var pbWasteTypes []*recyclehub.WasteType
+	data, err := h.WasteTypeUsecase.FindByID(ctx, id)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get waste type: %v", err)
+	}
+
+	return &pb.WasteTypeResponse{
+		Id:        data.ID.Hex(),
+		Name:      data.Name,
+		Price:     data.Price,
+		CreatedAt: data.CreatedAt.String(),
+		UpdatedAt: data.UpdatedAt.String(),
+	}, nil
+}
+
+func (h *WasteTypeGRPCHandler) GetAllWasteTypes(ctx context.Context, req *pb.GetWasteTypesRequest) (*pb.GetWasteTypesResponse, error) {
+	wasteTypes, err := h.WasteTypeUsecase.FindAll(ctx)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to get all waste types: %v", err)
+	}
+
+	var pbWasteTypes []*pb.WasteTypeResponse
 	for _, wt := range wasteTypes {
-		pbWasteTypes = append(pbWasteTypes, &recyclehub.WasteType{
-			Id:    wt.ID.Hex(), // Use the string ID directly
-			Name:  wt.Name,
-			Price: wt.Price,
+		pbWasteTypes = append(pbWasteTypes, &pb.WasteTypeResponse{
+			Id:        wt.ID.Hex(),
+			Name:      wt.Name,
+			Price:     wt.Price,
+			CreatedAt: wt.CreatedAt.String(),
+			UpdatedAt: wt.UpdatedAt.String(),
 		})
 	}
 
-	return &recyclehub.WasteTypeList{WasteTypes: pbWasteTypes}, nil
-}
-
-// GetWasteTypeByID handles the gRPC request to retrieve a specific waste type by ID.
-func (s *WasteTypeServer) GetWasteTypeByID(ctx context.Context, req *recyclehub.GetWasteTypeByIDRequest) (*recyclehub.WasteType, error) {
-	wasteType, err := s.useCase.FindById(ctx, req.Id)
-	if err != nil {
-		return nil, status.Errorf(codes.NotFound, "Waste type not found: %v", err)
-	}
-
-	return &recyclehub.WasteType{
-		Id:    wasteType.ID.Hex(), // Use the string ID directly
-		Name:  wasteType.Name,
-		Price: wasteType.Price,
+	return &pb.GetWasteTypesResponse{
+		WasteTypes: pbWasteTypes,
 	}, nil
 }

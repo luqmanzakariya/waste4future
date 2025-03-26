@@ -15,19 +15,24 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/addresses": {
+        "/api/drivers": {
             "get": {
-                "description": "Find All Addresses",
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find All Active Driver",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Drivers"
                 ],
-                "summary": "FindAll Address",
+                "summary": "Find All Active Driver",
                 "responses": {
                     "200": {
-                        "description": "Address list",
+                        "description": "List Active Driver",
                         "schema": {
                             "allOf": [
                                 {
@@ -39,7 +44,522 @@ const docTemplate = `{
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "$ref": "#/definitions/model.Address"
+                                                "$ref": "#/definitions/model.Driver"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Create new Driver",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Create a Driver",
+                "parameters": [
+                    {
+                        "description": "create driver payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadCreateDriver"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Driver created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseDriver"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/drivers/all": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find All Driver",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Find All Driver",
+                "responses": {
+                    "200": {
+                        "description": "List Driver",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Driver"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/drivers/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update Driver by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Update a Driver",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67e1327bc481a422f0293ff9\"",
+                        "description": "driver id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update driver payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadUpdateDriver"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Driver updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseDriver"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete a Driver",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Drivers"
+                ],
+                "summary": "Delete a Driver",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67e1327bc481a422f0293ff9\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Driver created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseDriver"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find All Orders by user token",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "FindAll My Orders",
+                "responses": {
+                    "200": {
+                        "description": "Order list",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/checkout": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Checkout Order and Change Status",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "Checkout Order",
+                "responses": {
+                    "200": {
+                        "description": "Order created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrder"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/orders/scheduler-shipping": {
+            "get": {
+                "description": "SchedulerShipping Update Shipping And Orders",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Orders"
+                ],
+                "summary": "SchedulerShipping Orders",
+                "responses": {
+                    "200": {
+                        "description": "Order list",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Order"
+                                            }
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find All Transactions",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "FindAll Transactions",
+                "responses": {
+                    "200": {
+                        "description": "Transaction list",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/definitions/model.Transaction"
                                             }
                                         }
                                     }
@@ -77,28 +597,28 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Add and register new Address",
+                "description": "Add and register new Transaction",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Transactions"
                 ],
-                "summary": "Create an Addressa",
+                "summary": "Create a Transaction",
                 "parameters": [
                     {
-                        "description": "create address payload",
+                        "description": "create transaction payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PayloadCreateAddress"
+                            "$ref": "#/definitions/model.PayloadCreateTransaction"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Address created",
+                        "description": "Transaction created",
                         "schema": {
                             "allOf": [
                                 {
@@ -108,7 +628,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.ResponseAddress"
+                                            "$ref": "#/definitions/model.ResponseTransaction"
                                         }
                                     }
                                 }
@@ -140,21 +660,26 @@ const docTemplate = `{
                 }
             }
         },
-        "/addresses/{id}": {
-            "get": {
-                "description": "Find Address By ID",
+        "/api/transactions/approved/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update Status Payment to Completed By ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Transactions"
                 ],
-                "summary": "FindById an Address",
+                "summary": "Update a Payment Status to Completed",
                 "parameters": [
                     {
                         "type": "string",
                         "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "address id",
+                        "description": "transaction id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -162,7 +687,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Address found",
+                        "description": "Transaction updated",
                         "schema": {
                             "allOf": [
                                 {
@@ -172,7 +697,189 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.ResponseAddress"
+                                            "$ref": "#/definitions/model.ResponseTransaction"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/reject/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update Status Payment to Reject By ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "Update a Payment Status to Reject",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "transaction id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseTransaction"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/transactions/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find Transaction By ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Transactions"
+                ],
+                "summary": "FindById a Transaction",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "transaction id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Transaction found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseTransaction"
                                         }
                                     }
                                 }
@@ -231,36 +938,36 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Update Address By ID",
+                "description": "Update Transaction By ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Transactions"
                 ],
-                "summary": "Update an Address",
+                "summary": "Update a Transaction",
                 "parameters": [
                     {
                         "type": "string",
                         "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "address id",
+                        "description": "transaction id",
                         "name": "id",
                         "in": "path",
                         "required": true
                     },
                     {
-                        "description": "update address payload",
+                        "description": "update transaction payload",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/model.PayloadUpdateAddress"
+                            "$ref": "#/definitions/model.PayloadUpdateTransaction"
                         }
                     }
                 ],
                 "responses": {
                     "200": {
-                        "description": "Address updated",
+                        "description": "Transaction updated",
                         "schema": {
                             "allOf": [
                                 {
@@ -270,7 +977,7 @@ const docTemplate = `{
                                     "type": "object",
                                     "properties": {
                                         "data": {
-                                            "$ref": "#/definitions/model.ResponseAddress"
+                                            "$ref": "#/definitions/model.ResponseTransaction"
                                         }
                                     }
                                 }
@@ -329,19 +1036,19 @@ const docTemplate = `{
                         "BearerAuth": []
                     }
                 ],
-                "description": "Delete Address By ID",
+                "description": "Delete Transaction By ID",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
-                    "Address"
+                    "Transactions"
                 ],
-                "summary": "DeleteById an Address",
+                "summary": "DeleteById a Transaction",
                 "parameters": [
                     {
                         "type": "string",
                         "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "address id",
+                        "description": "transaction id",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -349,7 +1056,7 @@ const docTemplate = `{
                 ],
                 "responses": {
                     "200": {
-                        "description": "Address deleted",
+                        "description": "Transaction deleted",
                         "schema": {
                             "allOf": [
                                 {
@@ -412,10 +1119,292 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/order-details": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add and register new order detail",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Create an Order Detail",
+                "parameters": [
+                    {
+                        "description": "create order detail payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadCreateOrderDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/order-details/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Find an Order Detail by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Update an Order Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update order detail payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadUpdateOrderDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Delete an Order Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail deleted",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
-        "model.Address": {
+        "model.Driver": {
             "type": "object",
             "properties": {
                 "created_at": {
@@ -424,13 +1413,382 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
-                "latitude": {
-                    "type": "string"
-                },
-                "longitude": {
+                "license_plate": {
                     "type": "string"
                 },
                 "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.DriverStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.DriverStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "working"
+            ],
+            "x-enum-varnames": [
+                "DriverStatusActive",
+                "DriverStatusInactive",
+                "DriverStatusWorking"
+            ]
+        },
+        "model.Order": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "driver_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "order_date": {
+                    "type": "string"
+                },
+                "order_detail_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "order_status": {
+                    "$ref": "#/definitions/model.OrderStatus"
+                },
+                "shipping_status": {
+                    "$ref": "#/definitions/model.ShippingStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_shipping": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.OrderStatus": {
+            "type": "string",
+            "enum": [
+                "draft",
+                "pending",
+                "paid",
+                "rejected"
+            ],
+            "x-enum-varnames": [
+                "OrderStatusDraft",
+                "OrderStatusPending",
+                "OrderStatusPaid",
+                "OrderStatusRejected"
+            ]
+        },
+        "model.PayloadCreateDriver": {
+            "description": "PayloadCreateDriver details.",
+            "type": "object",
+            "required": [
+                "license_plate",
+                "name",
+                "phone"
+            ],
+            "properties": {
+                "license_plate": {
+                    "type": "string",
+                    "example": "B 4134 LUZ"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "driver grab"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "081394859283"
+                }
+            }
+        },
+        "model.PayloadCreateOrderDetail": {
+            "type": "object",
+            "required": [
+                "origin_address_id",
+                "recycle_hub_id",
+                "waste_weight"
+            ],
+            "properties": {
+                "origin_address_id": {
+                    "type": "string"
+                },
+                "recycle_hub_id": {
+                    "type": "string"
+                },
+                "waste_weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.PayloadCreateTransaction": {
+            "description": "PayloadCreateTransaction details.",
+            "type": "object",
+            "required": [
+                "grand_total",
+                "order_id",
+                "payment_method"
+            ],
+            "properties": {
+                "grand_total": {
+                    "type": "number"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "enum": [
+                        "cod",
+                        "bank_transfer"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.PaymentMethod"
+                        }
+                    ]
+                }
+            }
+        },
+        "model.PayloadUpdateDriver": {
+            "description": "PayloadUpdateDriver details.",
+            "type": "object",
+            "properties": {
+                "license_plate": {
+                    "type": "string",
+                    "example": "B 4134 LUZ"
+                },
+                "name": {
+                    "type": "string",
+                    "example": "driver grab"
+                },
+                "phone": {
+                    "type": "string",
+                    "example": "081394859283"
+                },
+                "status": {
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.DriverStatus"
+                        }
+                    ],
+                    "example": "inactive"
+                }
+            }
+        },
+        "model.PayloadUpdateOrderDetail": {
+            "type": "object",
+            "required": [
+                "origin_address_id",
+                "waste_weight"
+            ],
+            "properties": {
+                "origin_address_id": {
+                    "type": "string"
+                },
+                "waste_weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.PayloadUpdateTransaction": {
+            "description": "PayloadUpdateTransaction details.",
+            "type": "object",
+            "properties": {
+                "grand_total": {
+                    "type": "number"
+                },
+                "payment_method": {
+                    "enum": [
+                        "cod",
+                        "bank_transfer"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.PaymentMethod"
+                        }
+                    ]
+                },
+                "payment_status": {
+                    "enum": [
+                        "pending",
+                        "completed",
+                        "rejected"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/model.PaymentStatus"
+                        }
+                    ]
+                }
+            }
+        },
+        "model.PaymentMethod": {
+            "type": "string",
+            "enum": [
+                "cod",
+                "bank_transfer"
+            ],
+            "x-enum-varnames": [
+                "PaymentMethodCOD",
+                "PaymentMethodBankTransfer"
+            ]
+        },
+        "model.PaymentStatus": {
+            "type": "string",
+            "enum": [
+                "pending",
+                "completed",
+                "rejected"
+            ],
+            "x-enum-varnames": [
+                "PaymentStatusPending",
+                "PaymentStatusCompleted",
+                "PaymentStatusRejected"
+            ]
+        },
+        "model.ResponseDriver": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "license_plate": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "status": {
+                    "$ref": "#/definitions/model.DriverStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResponseOrder": {
+            "description": "ResponseOrder details.",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "driver_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "order_date": {
+                    "type": "string"
+                },
+                "order_detail_ids": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "order_status": {
+                    "$ref": "#/definitions/model.OrderStatus"
+                },
+                "shipping_status": {
+                    "$ref": "#/definitions/model.ShippingStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "updated_shipping": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.ResponseOrderDetail": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "delivery_price": {
+                    "type": "number"
+                },
+                "destination_address_id": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "origin_address_id": {
+                    "type": "string"
+                },
+                "recycle_hub_id": {
+                    "type": "string"
+                },
+                "sub_total": {
+                    "type": "number"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "waste_weight": {
+                    "type": "number"
+                }
+            }
+        },
+        "model.ResponseTransaction": {
+            "description": "ResponseTransaction details.",
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "grand_total": {
+                    "type": "number"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "order_id": {
+                    "type": "string"
+                },
+                "payment_method": {
+                    "$ref": "#/definitions/model.PaymentMethod"
+                },
+                "payment_status": {
+                    "$ref": "#/definitions/model.PaymentStatus"
+                },
+                "transaction_date": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -438,69 +1796,43 @@ const docTemplate = `{
                 }
             }
         },
-        "model.PayloadCreateAddress": {
-            "description": "PayloadCreateAddress details.",
-            "type": "object",
-            "required": [
-                "latitude",
-                "longitude",
-                "name"
+        "model.ShippingStatus": {
+            "type": "string",
+            "enum": [
+                "unassigned",
+                "pickup",
+                "delivery",
+                "finish"
             ],
-            "properties": {
-                "latitude": {
-                    "type": "string",
-                    "example": "40.7128"
-                },
-                "longitude": {
-                    "type": "string",
-                    "example": "-74.0060"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Home"
-                }
-            }
+            "x-enum-varnames": [
+                "ShippingStatusUnassigned",
+                "ShippingStatusPickup",
+                "ShippingStatusDelivery",
+                "ShippingStatusFinish"
+            ]
         },
-        "model.PayloadUpdateAddress": {
-            "description": "PayloadUpdateAddress details.",
-            "type": "object",
-            "required": [
-                "latitude",
-                "longitude",
-                "name"
-            ],
-            "properties": {
-                "latitude": {
-                    "type": "string",
-                    "example": "40.7128"
-                },
-                "longitude": {
-                    "type": "string",
-                    "example": "-74.0060"
-                },
-                "name": {
-                    "type": "string",
-                    "example": "Office"
-                }
-            }
-        },
-        "model.ResponseAddress": {
-            "description": "ResponseAddress details.",
+        "model.Transaction": {
             "type": "object",
             "properties": {
                 "created_at": {
                     "type": "string"
                 },
+                "grand_total": {
+                    "type": "number"
+                },
                 "id": {
                     "type": "string"
                 },
-                "latitude": {
+                "order_id": {
                     "type": "string"
                 },
-                "longitude": {
-                    "type": "string"
+                "payment_method": {
+                    "$ref": "#/definitions/model.PaymentMethod"
                 },
-                "name": {
+                "payment_status": {
+                    "$ref": "#/definitions/model.PaymentStatus"
+                },
+                "transaction_date": {
                     "type": "string"
                 },
                 "updated_at": {
@@ -534,11 +1866,11 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "operation-service.example.com",
+	Host:             "operation-service-84457363535.asia-southeast2.run.app",
 	BasePath:         "/",
 	Schemes:          []string{"https", "http"},
-	Title:            "Address Service API",
-	Description:      "This is the documentation of Address Service API",
+	Title:            "Operation Service API",
+	Description:      "This is the documentation of Operation Service API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

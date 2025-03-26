@@ -2,27 +2,34 @@ package usecase
 
 import (
 	"context"
-	"recyclehub-service/model/domain"
-	"recyclehub-service/repository"
+	"errors"
+	"reyclehub-service/model"
+	"reyclehub-service/repository"
 )
 
 type IWasteTypeUsecase interface {
-	FindAll(ctx context.Context) ([]domain.WasteType, error)
-	FindById(ctx context.Context, id string) (domain.WasteType, error)
+	FindAll(ctx context.Context) ([]model.WasteType, error)
+	FindByID(ctx context.Context, id string) (model.WasteType, error)
 }
 
 type wasteTypeUsecase struct {
-	repo repository.WasteTypeRepository
+	WasteTypeRepo repository.IWasteTypeRepository
 }
 
-func NewWasteTypeUsecase(repo repository.WasteTypeRepository) IWasteTypeUsecase {
-	return &wasteTypeUsecase{repo: repo}
+func NewWasteTypeUsecase(wasteTypeRepo repository.IWasteTypeRepository) IWasteTypeUsecase {
+	return &wasteTypeUsecase{
+		WasteTypeRepo: wasteTypeRepo,
+	}
 }
 
-func (u *wasteTypeUsecase) FindAll(ctx context.Context) ([]domain.WasteType, error) {
-	return u.repo.FindAll(ctx)
+func (w *wasteTypeUsecase) FindAll(ctx context.Context) ([]model.WasteType, error) {
+	return w.WasteTypeRepo.ReadAll(ctx)
 }
 
-func (u *wasteTypeUsecase) FindById(ctx context.Context, id string) (domain.WasteType, error) {
-	return u.repo.FindById(ctx, id)
+func (w *wasteTypeUsecase) FindByID(ctx context.Context, id string) (model.WasteType, error) {
+	wasteType, err := w.WasteTypeRepo.ReadByID(ctx, id)
+	if err != nil {
+		return model.WasteType{}, errors.New("waste type not found")
+	}
+	return wasteType, nil
 }

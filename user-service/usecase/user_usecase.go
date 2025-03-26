@@ -76,6 +76,11 @@ func (u *userUsecase) Create(ctx context.Context, payload web.UserCreateRequest)
 		return response.UserResponse{}, err
 	}
 
+	err = utils.SendEmail(payload.Email, "Welcome to Waste4Future", "your account has been activated, you cant start contribute to society by taking care of your waste")
+	if err != nil {
+		return response.UserResponse{}, err
+	}
+
 	return helper.UserToResponse(userCreated), nil
 }
 

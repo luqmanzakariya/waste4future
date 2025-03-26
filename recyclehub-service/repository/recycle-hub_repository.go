@@ -2,78 +2,120 @@ package repository
 
 import (
 	"context"
-	"recyclehub-service/model/domain"
+	"errors"
+	"reyclehub-service/model"
+	"time"
 
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 type IRecycleHubRepository interface {
-	Create(ctx context.Context, hub *domain.RecycleHub) (*domain.RecycleHub, error)
-	FindAll(ctx context.Context) ([]domain.RecycleHub, error)
-	FindByID(ctx context.Context, id string) (*domain.RecycleHub, error)
-	Update(ctx context.Context, id string, hub *domain.RecycleHub) (*domain.RecycleHub, error)
+	Create(ctx context.Context, recycleHub model.RecycleHub) (model.RecycleHub, error)
+	ReadAll(ctx context.Context) ([]model.RecycleHub, error)
+	ReadByID(ctx context.Context, id string) (model.RecycleHub, error)
+	Update(ctx context.Context, id string, recycleHub model.RecycleHub) (model.RecycleHub, error)
 	Delete(ctx context.Context, id string) error
 }
 
 type recycleHubRepository struct {
-	collection *mongo.Collection
+	RecycleHubCollection *mongo.Collection
 }
 
-func NewRecycleHubRepository(collection *mongo.Collection) IRecycleHubRepository {
-	return &recycleHubRepository{collection}
+func NewRecycleHubRepository(db *mongo.Database) IRecycleHubRepository {
+	return &recycleHubRepository{
+		RecycleHubCollection: db.Collection("recycles"),
+	}
 }
 
-func (r *recycleHubRepository) Create(ctx context.Context, hub *domain.RecycleHub) (*domain.RecycleHub, error) {
-	result, err := r.collection.InsertOne(ctx, hub)
+func (r *recycleHubRepository) Create(ctx context.Context, recycleHub model.RecycleHub) (model.RecycleHub, error) {
+	recycleHub.CreatedAt = time.Now()
+	recycleHub.UpdatedAt = time.Now()
+
+	res, err := r.RecycleHubCollection.InsertOne(ctx, recycleHub)
 	if err != nil {
-		return nil, err
+		return model.RecycleHub{}, err
 	}
 
-	var createdHub domain.RecycleHub
-	err = r.collection.FindOne(ctx, bson.M{"_id": result.InsertedID}).Decode(&createdHub)
-	if err != nil {
-		return nil, err
+	insertedID, ok := res.InsertedID.(bson.ObjectID)
+	if !ok {
+		return model.RecycleHub{}, errors.New("failed to get inserted ID")
 	}
-	return &createdHub, nil
+
+	recycleHub.ID = insertedID
+	return recycleHub, nil
 }
 
-func (r *recycleHubRepository) FindAll(ctx context.Context) ([]domain.RecycleHub, error) {
-	var hubs []domain.RecycleHub
-	cursor, err := r.collection.Find(ctx, bson.M{})
+func (r *recycleHubRepository) ReadAll(ctx context.Context) ([]model.RecycleHub, error) {
+	var recycleHubs []model.RecycleHub
+	cursor, err := r.RecycleHubCollection.Find(ctx, bson.D{})
 	if err != nil {
-		return nil, err
+		return recycleHubs, err
 	}
-	if err = cursor.All(ctx, &hubs); err != nil {
-		return nil, err
+
+	if err = cursor.All(ctx, &recycleHubs); err != nil {
+		return recycleHubs, err
 	}
-	return hubs, nil
+
+	return recycleHubs, nil
 }
 
-func (r *recycleHubRepository) FindByID(ctx context.Context, id string) (*domain.RecycleHub, error) {
-	var hub domain.RecycleHub
-	err := r.collection.FindOne(ctx, bson.M{"_id": id}).Decode(&hub)
+func (r *recycleHubRepository) ReadByID(ctx context.Context, id string) (model.RecycleHub, error) {
+	objectID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, err
+		return model.RecycleHub{}, errors.New("invalid ID format")
 	}
-	return &hub, nil
+
+	filter := bson.M{"_id": objectID}
+	var recycleHub model.RecycleHub
+	err = r.RecycleHubCollection.FindOne(ctx, filter).Decode(&recycleHub)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return model.RecycleHub{}, errors.New("recycle hub not found")
+		}
+		return model.RecycleHub{}, err
+	}
+
+	return recycleHub, nil
 }
 
-func (r *recycleHubRepository) Update(ctx context.Context, id string, hub *domain.RecycleHub) (*domain.RecycleHub, error) {
-	result, err := r.collection.UpdateOne(ctx, bson.M{"_id": id}, bson.M{"$set": hub})
+func (r *recycleHubRepository) Update(ctx context.Context, id string, recycleHub model.RecycleHub) (model.RecycleHub, error) {
+	objectID, err := bson.ObjectIDFromHex(id)
 	if err != nil {
-		return nil, err
+		return recycleHub, errors.New("invalid ID format")
 	}
 
-	var updatedHub domain.RecycleHub
-	err = r.collection.FindOne(ctx, bson.M{"_id": result.UpsertedID}).Decode(&updatedHub)
+	recycleHub.UpdatedAt = time.Now()
+	filter := bson.M{"_id": objectID}
+	update := bson.M{"$set": recycleHub}
+
+	res, err := r.RecycleHubCollection.UpdateOne(ctx, filter, update)
 	if err != nil {
-		return nil, err
+		return recycleHub, err
 	}
-	return &updatedHub, nil
+
+	if res.MatchedCount == 0 {
+		return recycleHub, errors.New("recycle hub not found")
+	}
+
+	return recycleHub, nil
 }
 
 func (r *recycleHubRepository) Delete(ctx context.Context, id string) error {
-	_, err := r.collection.DeleteOne(ctx, bson.M{"_id": id})
-	return err
+	objectID, err := bson.ObjectIDFromHex(id)
+	if err != nil {
+		return errors.New("invalid ID format")
+	}
+
+	filter := bson.M{"_id": objectID}
+	res, err := r.RecycleHubCollection.DeleteOne(ctx, filter)
+	if err != nil {
+		return err
+	}
+
+	if res.DeletedCount == 0 {
+		return errors.New("recycle hub not found")
+	}
+
+	return nil
 }
