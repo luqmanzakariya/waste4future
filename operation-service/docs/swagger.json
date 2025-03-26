@@ -350,6 +350,288 @@
                 }
             }
         },
+        "/api/order-details": {
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Add and register new order detail",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Create an Order Detail",
+                "parameters": [
+                    {
+                        "description": "create order detail payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadCreateOrderDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail created",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "/api/order-details/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Find order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Find an Order Detail by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail found",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Update order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Update an Order Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "update order detail payload",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.PayloadUpdateOrderDetail"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail updated",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "$ref": "#/definitions/model.ResponseOrderDetail"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Delete order detail by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "OrderDetail"
+                ],
+                "summary": "Delete an Order Detail",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "example": "\"67cdcb62a50a990a870d928f\"",
+                        "description": "order detail id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Order detail deleted",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "allOf": [
+                                {
+                                    "$ref": "#/definitions/model.WebResponse"
+                                },
+                                {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "integer"
+                                        },
+                                        "data": {},
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
         "/api/orders": {
             "get": {
                 "security": [
@@ -1117,288 +1399,6 @@
                     }
                 }
             }
-        },
-        "/order-details": {
-            "post": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Add and register new order detail",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OrderDetail"
-                ],
-                "summary": "Create an Order Detail",
-                "parameters": [
-                    {
-                        "description": "create order detail payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.PayloadCreateOrderDetail"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order detail created",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.ResponseOrderDetail"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
-        "/order-details/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Find order detail by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OrderDetail"
-                ],
-                "summary": "Find an Order Detail by ID",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "order detail id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order detail found",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.ResponseOrderDetail"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "put": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Update order detail by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OrderDetail"
-                ],
-                "summary": "Update an Order Detail",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "order detail id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "update order detail payload",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/model.PayloadUpdateOrderDetail"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order detail updated",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/model.ResponseOrderDetail"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Delete order detail by ID",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "OrderDetail"
-                ],
-                "summary": "Delete an Order Detail",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "example": "\"67cdcb62a50a990a870d928f\"",
-                        "description": "order detail id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Order detail deleted",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/model.WebResponse"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "code": {
-                                            "type": "integer"
-                                        },
-                                        "data": {},
-                                        "status": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
         }
     },
     "definitions": {
@@ -1523,19 +1523,17 @@
         "model.PayloadCreateOrderDetail": {
             "type": "object",
             "required": [
-                "origin_address_id",
                 "recycle_hub_id",
                 "waste_weight"
             ],
             "properties": {
-                "origin_address_id": {
-                    "type": "string"
-                },
                 "recycle_hub_id": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "67e2a4307d59f2fa0bf8cd14"
                 },
                 "waste_weight": {
-                    "type": "number"
+                    "type": "number",
+                    "example": 10
                 }
             }
         },
