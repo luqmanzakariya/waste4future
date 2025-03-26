@@ -20,7 +20,7 @@ import (
 )
 
 type IOrderDetailUsecase interface {
-	Create(ctx context.Context, userID int, payload model.PayloadCreateOrderDetail) (model.ResponseOrderDetail, error)
+	Create(ctx context.Context, userID int, payload model.PayloadCreateOrderDetail, addressId string) (model.ResponseOrderDetail, error)
 	FindAll(ctx context.Context) ([]model.OrderDetail, error)
 	FindByID(ctx context.Context, id string) (model.ResponseOrderDetail, error)
 	Update(ctx context.Context, id string, payload model.PayloadUpdateOrderDetail) (model.ResponseOrderDetail, error)
@@ -57,7 +57,7 @@ func NewOrderDetailUsecase(
 	}
 }
 
-func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload model.PayloadCreateOrderDetail) (model.ResponseOrderDetail, error) {
+func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload model.PayloadCreateOrderDetail, addressId string) (model.ResponseOrderDetail, error) {
 	if err := u.Validate.Struct(payload); err != nil {
 		return model.ResponseOrderDetail{}, err
 	}
@@ -72,7 +72,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 	}
 
 	// 1.a Get origin address
-	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: payload.OriginAddressID})
+	originResp, err := u.AddressClient.GetAddressByID(ctx, &pbAddress.GetAddressByIDRequest{Id: addressId})
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
 			return model.ResponseOrderDetail{}, errors.New("origin address not found")
@@ -141,7 +141,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 		RecycleHubID:         payload.RecycleHubID,
 		WasteWeight:          payload.WasteWeight,
 		SubTotal:             subTotal,
-		OriginAddressID:      payload.OriginAddressID,
+		OriginAddressID:      addressId,
 		DestinationAddressID: recycleResp.AddressId,
 		DeliveryPrice:        deliveryPrice,
 		CreatedAt:            time.Now(),
