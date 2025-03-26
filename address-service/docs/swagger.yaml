@@ -1,0 +1,317 @@
+basePath: /
+definitions:
+  model.Address:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: string
+      longitude:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.PayloadCreateAddress:
+    description: PayloadCreateAddress details.
+    properties:
+      latitude:
+        example: "40.7128"
+        type: string
+      longitude:
+        example: "-74.0060"
+        type: string
+      name:
+        example: Home
+        type: string
+    required:
+    - latitude
+    - longitude
+    - name
+    type: object
+  model.PayloadUpdateAddress:
+    description: PayloadUpdateAddress details.
+    properties:
+      latitude:
+        example: "40.7128"
+        type: string
+      longitude:
+        example: "-74.0060"
+        type: string
+      name:
+        example: Office
+        type: string
+    required:
+    - latitude
+    - longitude
+    - name
+    type: object
+  model.ResponseAddress:
+    description: ResponseAddress details.
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      latitude:
+        type: string
+      longitude:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.WebResponse:
+    description: represents the standard API response format.
+    properties:
+      code:
+        type: integer
+      data: {}
+      status:
+        type: string
+    type: object
+host: address-service-84457363535.asia-southeast2.run.app/api
+info:
+  contact: {}
+  description: This is the documentation of Waste4Future Address Service API
+  title: Waste4Future Address Service API
+  version: "1.0"
+paths:
+  /addresses:
+    get:
+      description: Find All Addresses
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address list
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Address'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: FindAll Address
+      tags:
+      - Address
+    post:
+      description: Add and register new Address
+      parameters:
+      - description: create address payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateAddress'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseAddress'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create an Addressa
+      tags:
+      - Address
+  /addresses/{id}:
+    delete:
+      description: Delete Address By ID
+      parameters:
+      - description: address id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: DeleteById an Address
+      tags:
+      - Address
+    get:
+      description: Find Address By ID
+      parameters:
+      - description: address id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address found
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseAddress'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: FindById an Address
+      tags:
+      - Address
+    put:
+      description: Update Address By ID
+      parameters:
+      - description: address id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update address payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateAddress'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Address updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseAddress'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update an Address
+      tags:
+      - Address
+schemes:
+- https
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

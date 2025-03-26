@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package address;
+
+option go_package = "pb/address";
+
+service AddressService {
+    rpc CreateAddress(CreateAddressRequest) returns (AddressResponse) {}
+    rpc GetAddressByID(GetAddressByIDRequest) returns (AddressResponse) {}
+    rpc GetAllAddresses(GetAddressesRequest) returns (GetAddressesResponse) {}
+    rpc UpdateAddress(UpdateAddressRequest) returns (AddressResponse) {}
+    rpc DeleteAddress(DeleteAddressRequest) returns (DeleteAddressResponse) {}
+}
+
+message CreateAddressRequest {
+    string name = 1;
+    string latitude = 2;
+    string longitude = 3;
+}
+
+message GetAddressByIDRequest {
+    string id = 1;
+}
+
+message GetAddressesRequest {
+    string name = 1;
+    string latitude = 2;
+    string longitude = 3;
+}
+
+message GetAddressesResponse {
+    repeated AddressResponse addresses = 1;
+}
+
+message UpdateAddressRequest {
+    string id = 1;
+    string name = 2;
+    string latitude = 3;
+    string longitude = 4;
+}
+
+message DeleteAddressRequest {
+    string id = 1;
+}
+
+message AddressResponse {
+    string id = 1;
+    string name = 2;
+    string latitude = 3;
+    string longitude = 4;
+    string created_at = 5;
+    string updated_at = 6;
+}
+
+message DeleteAddressResponse {
+    bool success = 1;
+    string message = 2;
+}
