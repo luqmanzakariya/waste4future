@@ -83,13 +83,6 @@ definitions:
     - name
     - phone
     type: object
-  model.PayloadCreateOrder:
-    description: PayloadCreateOrder details.
-    properties:
-      note:
-        example: mohon hati hati karena terdapat barang pecah belah
-        type: string
-    type: object
   model.PayloadCreateOrderDetail:
     properties:
       origin_address_id:
@@ -137,17 +130,6 @@ definitions:
         allOf:
         - $ref: '#/definitions/model.DriverStatus'
         example: inactive
-    type: object
-  model.PayloadUpdateOrder:
-    description: PayloadUpdateOrder details.
-    properties:
-      note:
-        example: "40.7128"
-        type: string
-      orderDetailIDs:
-        items:
-          type: string
-        type: array
     type: object
   model.PayloadUpdateOrderDetail:
     properties:
@@ -322,7 +304,7 @@ definitions:
       status:
         type: string
     type: object
-host: localhost:8080
+host: operation-service-84457363535.asia-southeast2.run.app
 info:
   contact: {}
   description: This is the documentation of Operation Service API
@@ -520,7 +502,7 @@ paths:
       - Drivers
   /api/orders:
     get:
-      description: Find All Orders
+      description: Find All Orders by user token
       produces:
       - application/json
       responses:
@@ -547,200 +529,9 @@ paths:
                 status:
                   type: string
               type: object
-      summary: FindAll Orders
-      tags:
-      - Orders
-    post:
-      description: Add and register new Order
-      parameters:
-      - description: create order payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.PayloadCreateOrder'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order created
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.ResponseOrder'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
       security:
       - BearerAuth: []
-      summary: Create an Order
-      tags:
-      - Orders
-  /api/orders/{id}:
-    delete:
-      description: Delete Order By ID
-      parameters:
-      - description: order id
-        example: '"67cdcb62a50a990a870d928f"'
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order deleted
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: DeleteById an Order
-      tags:
-      - Orders
-    get:
-      description: Find Order By ID
-      parameters:
-      - description: address id
-        example: '"67cdcb62a50a990a870d928f"'
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Address found
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.ResponseOrder'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-      summary: FindById an Order
-      tags:
-      - Orders
-    put:
-      description: Update Order By ID
-      parameters:
-      - description: order id
-        example: '"67cdcb62a50a990a870d928f"'
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: update order payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.PayloadUpdateOrder'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order updated
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.ResponseOrder'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Update an Order
+      summary: FindAll My Orders
       tags:
       - Orders
   /api/orders/checkout:
@@ -775,23 +566,25 @@ paths:
       summary: Checkout Order
       tags:
       - Orders
-  /api/orders/save:
-    post:
-      description: Save Order Detail ID
+  /api/orders/scheduler-shipping:
+    get:
+      description: SchedulerShipping Update Shipping And Orders
       produces:
       - application/json
       responses:
         "200":
-          description: Order created
+          description: Order list
           schema:
             allOf:
             - $ref: '#/definitions/model.WebResponse'
             - properties:
                 data:
-                  $ref: '#/definitions/model.ResponseOrder'
+                  items:
+                    $ref: '#/definitions/model.Order'
+                  type: array
               type: object
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           schema:
             allOf:
             - $ref: '#/definitions/model.WebResponse'
@@ -802,9 +595,7 @@ paths:
                 status:
                   type: string
               type: object
-      security:
-      - BearerAuth: []
-      summary: Save Order Detail ID
+      summary: SchedulerShipping Orders
       tags:
       - Orders
   /api/transactions:
@@ -1036,6 +827,108 @@ paths:
       summary: Update a Transaction
       tags:
       - Transactions
+  /api/transactions/approved/{id}:
+    put:
+      description: Update Status Payment to Completed By ID
+      parameters:
+      - description: transaction id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseTransaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Payment Status to Completed
+      tags:
+      - Transactions
+  /api/transactions/reject/{id}:
+    put:
+      description: Update Status Payment to Reject By ID
+      parameters:
+      - description: transaction id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseTransaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Payment Status to Reject
+      tags:
+      - Transactions
   /order-details:
     post:
       description: Add and register new order detail
@@ -1197,8 +1090,8 @@ paths:
       tags:
       - OrderDetail
 schemes:
-- http
 - https
+- http
 securityDefinitions:
   BearerAuth:
     in: header

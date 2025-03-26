@@ -30,8 +30,8 @@ import (
 // @title Operation Service API
 // @version 1.0
 // @description This is the documentation of Operation Service API
-// @host localhost:8080
-// @schemes http https
+// @host operation-service-84457363535.asia-southeast2.run.app
+// @schemes https http
 // @BasePath /
 // @SecurityDefinitions.apikey BearerAuth
 // @In header
@@ -92,7 +92,7 @@ func main() {
 
 	e.Use(echoMiddleware.Recover())
 	e.Use(echoMiddleware.CORSWithConfig(echoMiddleware.CORSConfig{
-		AllowOrigins:     []string{"https://operation-service.example.com"},
+		AllowOrigins:     []string{"https://operation-service-84457363535.asia-southeast2.run.app"},
 		AllowMethods:     []string{echo.GET, echo.POST, echo.PUT, echo.DELETE, echo.OPTIONS},
 		AllowHeaders:     []string{"Content-Type", "Authorization", "X-Requested-With"},
 		ExposeHeaders:    []string{"Content-Length"},
@@ -133,8 +133,8 @@ func main() {
 		userConn,
 		validator,
 	)
-	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator, transactionRepo, orderDetailRepo)
-	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator)
+	orderUsecase := usecase.NewOrderUsecase(orderRepo, validator, transactionRepo, orderDetailRepo, driverRepo)
+	transactionUsecase := usecase.NewTransactionUsecase(transactionRepo, validator, orderRepo, driverRepo)
 	driverUsecase := usecase.NewDriverUsecase(driverRepo, validator)
 
 	// # Oder Detail Routes & Handler

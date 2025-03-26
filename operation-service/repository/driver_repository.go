@@ -45,7 +45,8 @@ func (d *driverRepository) Create(ctx context.Context, driver model.Driver) (mod
 }
 
 func (d *driverRepository) ReadAllActive(ctx context.Context) ([]model.Driver, error) {
-	var drivers []model.Driver
+	// Initialize as empty slice (not nil)
+	drivers := make([]model.Driver, 0)
 
 	// Add filter for status = "active"
 	filter := bson.D{{Key: "status", Value: "active"}}
@@ -59,6 +60,9 @@ func (d *driverRepository) ReadAllActive(ctx context.Context) ([]model.Driver, e
 		return drivers, err
 	}
 
+	// At this point, drivers will be:
+	// - Empty slice if no documents found
+	// - Slice with drivers if documents found
 	return drivers, nil
 }
 
