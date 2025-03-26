@@ -38,9 +38,9 @@ Waste4Future is an on-demand waste collection service that simplifies recycling 
 
 ## ERD
 
-### User Service (Postgres) ❌
+### User Service (Postgres)
 
-![User service ERD](./misc/user_erd.svg)
+![User service ERD](./misc/users.svg)
 
 ### Merchant Service (Postgres)
 
