@@ -1,0 +1,403 @@
+basePath: /
+definitions:
+  model.PayloadCreateRecycleHub:
+    description: PayloadCreateRecycleHub details.
+    properties:
+      address_id:
+        example: 67cdcb62a50a990a870d928f
+        type: string
+      name:
+        example: Recycle Hub Jakut
+        type: string
+      phone:
+        example: "08123456789"
+        type: string
+      waste_type_id:
+        example: 67cdcb62a50a990a870d928f
+        type: string
+    required:
+    - address_id
+    - name
+    - phone
+    - waste_type_id
+    type: object
+  model.PayloadUpdateRecycleHub:
+    description: PayloadUpdateRecycleHub details.
+    properties:
+      address_id:
+        example: 67cdcb62a50a990a870d928f
+        type: string
+      name:
+        example: Recycle Hub Jakarta Utara
+        type: string
+      phone:
+        example: "08123456789"
+        type: string
+      waste_type_id:
+        example: 67cdcb62a50a990a870d928f
+        type: string
+    required:
+    - address_id
+    - name
+    - phone
+    - waste_type_id
+    type: object
+  model.RecycleHub:
+    description: RecycleHub details.
+    properties:
+      address_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+      waste_type_id:
+        type: string
+    type: object
+  model.ResponseRecycleHub:
+    description: ResponseRecycleHub details.
+    properties:
+      address_id:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      updated_at:
+        type: string
+      waste_type_id:
+        type: string
+    type: object
+  model.WasteType:
+    description: WasteType details.
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      updated_at:
+        type: string
+    type: object
+  model.WebResponse:
+    description: represents the standard API response format.
+    properties:
+      code:
+        type: integer
+      data: {}
+      status:
+        type: string
+    type: object
+host: recyclehub-service-84457363535.asia-southeast2.run.app
+info:
+  contact: {}
+  description: This is the documentation of Waste4Future Recyclehub Service API
+  title: Waste4Future Recycle Service API
+  version: "1.0"
+paths:
+  /api/recycle-hubs:
+    get:
+      description: Retrieve all Recycle Hubs
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recycle Hubs list
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.RecycleHub'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: FindAll Recycle Hubs
+      tags:
+      - RecycleHubs
+    post:
+      consumes:
+      - application/json
+      description: Add and register new Recycle Hub
+      parameters:
+      - description: create recycle hub payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateRecycleHub'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recycle Hub created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseRecycleHub'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: Create a Recycle Hub
+      tags:
+      - RecycleHubs
+  /api/recycle-hubs/{id}:
+    delete:
+      description: Delete Recycle Hub by ID
+      parameters:
+      - description: recycle hub id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recycle Hub deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a Recycle Hub
+      tags:
+      - RecycleHubs
+    get:
+      description: Retrieve a Recycle Hub by its ID
+      parameters:
+      - description: recycle hub id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recycle Hub found
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseRecycleHub'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: Find Recycle Hub by ID
+      tags:
+      - RecycleHubs
+    put:
+      consumes:
+      - application/json
+      description: Update Recycle Hub by ID
+      parameters:
+      - description: recycle hub id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update recycle hub payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateRecycleHub'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Recycle Hub updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseRecycleHub'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Recycle Hub
+      tags:
+      - RecycleHubs
+  /api/waste-types:
+    get:
+      description: Retrieve all waste types
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Waste types list
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.WasteType'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: FindAll Waste Types
+      tags:
+      - WasteTypes
+  /api/waste-types/{id}:
+    get:
+      description: Retrieve a waste type by its ID
+      parameters:
+      - description: waste type id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Waste type found
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.WasteType'
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: Find Waste Type by ID
+      tags:
+      - WasteTypes
+schemes:
+- https
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

@@ -1,0 +1,1100 @@
+basePath: /
+definitions:
+  model.Driver:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      license_plate:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      status:
+        $ref: '#/definitions/model.DriverStatus'
+      updated_at:
+        type: string
+    type: object
+  model.DriverStatus:
+    enum:
+    - active
+    - inactive
+    - working
+    type: string
+    x-enum-varnames:
+    - DriverStatusActive
+    - DriverStatusInactive
+    - DriverStatusWorking
+  model.Order:
+    properties:
+      created_at:
+        type: string
+      driver_id:
+        type: string
+      id:
+        type: string
+      note:
+        type: string
+      order_date:
+        type: string
+      order_detail_ids:
+        items:
+          type: string
+        type: array
+      order_status:
+        $ref: '#/definitions/model.OrderStatus'
+      shipping_status:
+        $ref: '#/definitions/model.ShippingStatus'
+      updated_at:
+        type: string
+      updated_shipping:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  model.OrderStatus:
+    enum:
+    - draft
+    - pending
+    - paid
+    - rejected
+    type: string
+    x-enum-varnames:
+    - OrderStatusDraft
+    - OrderStatusPending
+    - OrderStatusPaid
+    - OrderStatusRejected
+  model.PayloadCreateDriver:
+    description: PayloadCreateDriver details.
+    properties:
+      license_plate:
+        example: B 4134 LUZ
+        type: string
+      name:
+        example: driver grab
+        type: string
+      phone:
+        example: "081394859283"
+        type: string
+    required:
+    - license_plate
+    - name
+    - phone
+    type: object
+  model.PayloadCreateOrderDetail:
+    properties:
+      origin_address_id:
+        type: string
+      recycle_hub_id:
+        type: string
+      waste_weight:
+        type: number
+    required:
+    - origin_address_id
+    - recycle_hub_id
+    - waste_weight
+    type: object
+  model.PayloadCreateTransaction:
+    description: PayloadCreateTransaction details.
+    properties:
+      grand_total:
+        type: number
+      order_id:
+        type: string
+      payment_method:
+        allOf:
+        - $ref: '#/definitions/model.PaymentMethod'
+        enum:
+        - cod
+        - bank_transfer
+    required:
+    - grand_total
+    - order_id
+    - payment_method
+    type: object
+  model.PayloadUpdateDriver:
+    description: PayloadUpdateDriver details.
+    properties:
+      license_plate:
+        example: B 4134 LUZ
+        type: string
+      name:
+        example: driver grab
+        type: string
+      phone:
+        example: "081394859283"
+        type: string
+      status:
+        allOf:
+        - $ref: '#/definitions/model.DriverStatus'
+        example: inactive
+    type: object
+  model.PayloadUpdateOrderDetail:
+    properties:
+      origin_address_id:
+        type: string
+      waste_weight:
+        type: number
+    required:
+    - origin_address_id
+    - waste_weight
+    type: object
+  model.PayloadUpdateTransaction:
+    description: PayloadUpdateTransaction details.
+    properties:
+      grand_total:
+        type: number
+      payment_method:
+        allOf:
+        - $ref: '#/definitions/model.PaymentMethod'
+        enum:
+        - cod
+        - bank_transfer
+      payment_status:
+        allOf:
+        - $ref: '#/definitions/model.PaymentStatus'
+        enum:
+        - pending
+        - completed
+        - rejected
+    type: object
+  model.PaymentMethod:
+    enum:
+    - cod
+    - bank_transfer
+    type: string
+    x-enum-varnames:
+    - PaymentMethodCOD
+    - PaymentMethodBankTransfer
+  model.PaymentStatus:
+    enum:
+    - pending
+    - completed
+    - rejected
+    type: string
+    x-enum-varnames:
+    - PaymentStatusPending
+    - PaymentStatusCompleted
+    - PaymentStatusRejected
+  model.ResponseDriver:
+    properties:
+      created_at:
+        type: string
+      id:
+        type: string
+      license_plate:
+        type: string
+      name:
+        type: string
+      phone:
+        type: string
+      status:
+        $ref: '#/definitions/model.DriverStatus'
+      updated_at:
+        type: string
+    type: object
+  model.ResponseOrder:
+    description: ResponseOrder details.
+    properties:
+      created_at:
+        type: string
+      driver_id:
+        type: string
+      id:
+        type: string
+      note:
+        type: string
+      order_date:
+        type: string
+      order_detail_ids:
+        items:
+          type: string
+        type: array
+      order_status:
+        $ref: '#/definitions/model.OrderStatus'
+      shipping_status:
+        $ref: '#/definitions/model.ShippingStatus'
+      updated_at:
+        type: string
+      updated_shipping:
+        type: string
+    type: object
+  model.ResponseOrderDetail:
+    properties:
+      created_at:
+        type: string
+      delivery_price:
+        type: number
+      destination_address_id:
+        type: string
+      id:
+        type: string
+      origin_address_id:
+        type: string
+      recycle_hub_id:
+        type: string
+      sub_total:
+        type: number
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      waste_weight:
+        type: number
+    type: object
+  model.ResponseTransaction:
+    description: ResponseTransaction details.
+    properties:
+      created_at:
+        type: string
+      grand_total:
+        type: number
+      id:
+        type: string
+      order_id:
+        type: string
+      payment_method:
+        $ref: '#/definitions/model.PaymentMethod'
+      payment_status:
+        $ref: '#/definitions/model.PaymentStatus'
+      transaction_date:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.ShippingStatus:
+    enum:
+    - unassigned
+    - pickup
+    - delivery
+    - finish
+    type: string
+    x-enum-varnames:
+    - ShippingStatusUnassigned
+    - ShippingStatusPickup
+    - ShippingStatusDelivery
+    - ShippingStatusFinish
+  model.Transaction:
+    properties:
+      created_at:
+        type: string
+      grand_total:
+        type: number
+      id:
+        type: string
+      order_id:
+        type: string
+      payment_method:
+        $ref: '#/definitions/model.PaymentMethod'
+      payment_status:
+        $ref: '#/definitions/model.PaymentStatus'
+      transaction_date:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  model.WebResponse:
+    description: represents the standard API response format.
+    properties:
+      code:
+        type: integer
+      data: {}
+      status:
+        type: string
+    type: object
+host: operation-service-84457363535.asia-southeast2.run.app
+info:
+  contact: {}
+  description: This is the documentation of Operation Service API
+  title: Operation Service API
+  version: "1.0"
+paths:
+  /api/drivers:
+    get:
+      description: Find All Active Driver
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List Active Driver
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Driver'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Find All Active Driver
+      tags:
+      - Drivers
+    post:
+      description: Create new Driver
+      parameters:
+      - description: create driver payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateDriver'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Driver created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseDriver'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create a Driver
+      tags:
+      - Drivers
+  /api/drivers/{id}:
+    delete:
+      description: Delete a Driver
+      parameters:
+      - description: order detail id
+        example: '"67e1327bc481a422f0293ff9"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Driver created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseDriver'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Delete a Driver
+      tags:
+      - Drivers
+    put:
+      description: Update Driver by ID
+      parameters:
+      - description: driver id
+        example: '"67e1327bc481a422f0293ff9"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update driver payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateDriver'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Driver updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseDriver'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Driver
+      tags:
+      - Drivers
+  /api/drivers/all:
+    get:
+      description: Find All Driver
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: List Driver
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Driver'
+                  type: array
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Find All Driver
+      tags:
+      - Drivers
+  /api/orders:
+    get:
+      description: Find All Orders by user token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order list
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Order'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: FindAll My Orders
+      tags:
+      - Orders
+  /api/orders/checkout:
+    post:
+      description: Checkout Order and Change Status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrder'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Checkout Order
+      tags:
+      - Orders
+  /api/orders/scheduler-shipping:
+    get:
+      description: SchedulerShipping Update Shipping And Orders
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order list
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Order'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      summary: SchedulerShipping Orders
+      tags:
+      - Orders
+  /api/transactions:
+    get:
+      description: Find All Transactions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction list
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  items:
+                    $ref: '#/definitions/model.Transaction'
+                  type: array
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: FindAll Transactions
+      tags:
+      - Transactions
+    post:
+      description: Add and register new Transaction
+      parameters:
+      - description: create transaction payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateTransaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseTransaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create a Transaction
+      tags:
+      - Transactions
+  /api/transactions/{id}:
+    delete:
+      description: Delete Transaction By ID
+      parameters:
+      - description: transaction id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: DeleteById a Transaction
+      tags:
+      - Transactions
+    get:
+      description: Find Transaction By ID
+      parameters:
+      - description: transaction id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction found
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseTransaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: FindById a Transaction
+      tags:
+      - Transactions
+    put:
+      description: Update Transaction By ID
+      parameters:
+      - description: transaction id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update transaction payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateTransaction'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseTransaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Transaction
+      tags:
+      - Transactions
+  /api/transactions/approved/{id}:
+    put:
+      description: Update Status Payment to Completed By ID
+      parameters:
+      - description: transaction id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseTransaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Payment Status to Completed
+      tags:
+      - Transactions
+  /api/transactions/reject/{id}:
+    put:
+      description: Update Status Payment to Reject By ID
+      parameters:
+      - description: transaction id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Transaction updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseTransaction'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update a Payment Status to Reject
+      tags:
+      - Transactions
+  /order-details:
+    post:
+      description: Add and register new order detail
+      parameters:
+      - description: create order detail payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateOrderDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create an Order Detail
+      tags:
+      - OrderDetail
+  /order-details/{id}:
+    delete:
+      description: Delete order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Delete an Order Detail
+      tags:
+      - OrderDetail
+    get:
+      description: Find order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail found
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Find an Order Detail by ID
+      tags:
+      - OrderDetail
+    put:
+      description: Update order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update order detail payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateOrderDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update an Order Detail
+      tags:
+      - OrderDetail
+schemes:
+- https
+- http
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
