@@ -3,12 +3,12 @@ package usecase
 import (
 	"context"
 	"errors"
-	"math"
 	"operation-service/model"
 	pbAddress "operation-service/pb/address"
 	pbRecycle "operation-service/pb/recycle_hub"
 	pbUser "operation-service/pb/user"
 	"operation-service/repository"
+	"operation-service/utils"
 	"os"
 	"strconv"
 	"time"
@@ -55,18 +55,6 @@ func NewOrderDetailUsecase(
 		UserClient:       pbUser.NewUserServiceClient(userConn),
 		Validate:         validate,
 	}
-}
-
-// Haversine formula for distance calculation
-func calculateDistance(lat1, lon1, lat2, lon2 float64) float64 {
-	const R = 6371 // Earth radius in kilometers
-	dLat := (lat2 - lat1) * math.Pi / 180
-	dLon := (lon2 - lon1) * math.Pi / 180
-	a := math.Sin(dLat/2)*math.Sin(dLat/2) +
-		math.Cos(lat1*math.Pi/180)*math.Cos(lat2*math.Pi/180)*
-			math.Sin(dLon/2)*math.Sin(dLon/2)
-	c := 2 * math.Atan2(math.Sqrt(a), math.Sqrt(1-a))
-	return R * c
 }
 
 func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload model.PayloadCreateOrderDetail) (model.ResponseOrderDetail, error) {
@@ -139,7 +127,7 @@ func (u *orderDetailUsecase) Create(ctx context.Context, userID int, payload mod
 	}
 
 	// 1.d Calculate distance and validate
-	distance := calculateDistance(originLat, originLon, destLat, destLon)
+	distance := utils.CalculateDistance(originLat, originLon, destLat, destLon)
 	if distance > 50 {
 		return model.ResponseOrderDetail{}, errors.New("order cannot be placed: distance exceeds 50km")
 	}
@@ -220,7 +208,7 @@ func (u *orderDetailUsecase) Update(ctx context.Context, id string, payload mode
 	originLon, _ := strconv.ParseFloat(originResp.Longitude, 64)
 	destLat, _ := strconv.ParseFloat(destResp.Latitude, 64)
 	destLon, _ := strconv.ParseFloat(destResp.Longitude, 64)
-	distance := calculateDistance(originLat, originLon, destLat, destLon)
+	distance := utils.CalculateDistance(originLat, originLon, destLat, destLon)
 	if distance > 50 {
 		return model.ResponseOrderDetail{}, errors.New("order cannot be updated: distance exceeds 50km")
 	}
