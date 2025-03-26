@@ -85,14 +85,13 @@ definitions:
     type: object
   model.PayloadCreateOrderDetail:
     properties:
-      origin_address_id:
-        type: string
       recycle_hub_id:
+        example: 67e2a4307d59f2fa0bf8cd14
         type: string
       waste_weight:
+        example: 10
         type: number
     required:
-    - origin_address_id
     - recycle_hub_id
     - waste_weight
     type: object
@@ -500,6 +499,166 @@ paths:
       summary: Find All Driver
       tags:
       - Drivers
+  /api/order-details:
+    post:
+      description: Add and register new order detail
+      parameters:
+      - description: create order detail payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadCreateOrderDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail created
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Create an Order Detail
+      tags:
+      - OrderDetail
+  /api/order-details/{id}:
+    delete:
+      description: Delete order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail deleted
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  type: string
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Delete an Order Detail
+      tags:
+      - OrderDetail
+    get:
+      description: Find order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail found
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Find an Order Detail by ID
+      tags:
+      - OrderDetail
+    put:
+      description: Update order detail by ID
+      parameters:
+      - description: order detail id
+        example: '"67cdcb62a50a990a870d928f"'
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: update order detail payload
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/model.PayloadUpdateOrderDetail'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Order detail updated
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                data:
+                  $ref: '#/definitions/model.ResponseOrderDetail'
+              type: object
+        "400":
+          description: Bad Request
+          schema:
+            allOf:
+            - $ref: '#/definitions/model.WebResponse'
+            - properties:
+                code:
+                  type: integer
+                data: {}
+                status:
+                  type: string
+              type: object
+      security:
+      - BearerAuth: []
+      summary: Update an Order Detail
+      tags:
+      - OrderDetail
   /api/orders:
     get:
       description: Find All Orders by user token
@@ -929,166 +1088,6 @@ paths:
       summary: Update a Payment Status to Reject
       tags:
       - Transactions
-  /order-details:
-    post:
-      description: Add and register new order detail
-      parameters:
-      - description: create order detail payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.PayloadCreateOrderDetail'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order detail created
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.ResponseOrderDetail'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Create an Order Detail
-      tags:
-      - OrderDetail
-  /order-details/{id}:
-    delete:
-      description: Delete order detail by ID
-      parameters:
-      - description: order detail id
-        example: '"67cdcb62a50a990a870d928f"'
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order detail deleted
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  type: string
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Delete an Order Detail
-      tags:
-      - OrderDetail
-    get:
-      description: Find order detail by ID
-      parameters:
-      - description: order detail id
-        example: '"67cdcb62a50a990a870d928f"'
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order detail found
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.ResponseOrderDetail'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Find an Order Detail by ID
-      tags:
-      - OrderDetail
-    put:
-      description: Update order detail by ID
-      parameters:
-      - description: order detail id
-        example: '"67cdcb62a50a990a870d928f"'
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: update order detail payload
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/model.PayloadUpdateOrderDetail'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: Order detail updated
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                data:
-                  $ref: '#/definitions/model.ResponseOrderDetail'
-              type: object
-        "400":
-          description: Bad Request
-          schema:
-            allOf:
-            - $ref: '#/definitions/model.WebResponse'
-            - properties:
-                code:
-                  type: integer
-                data: {}
-                status:
-                  type: string
-              type: object
-      security:
-      - BearerAuth: []
-      summary: Update an Order Detail
-      tags:
-      - OrderDetail
 schemes:
 - https
 - http

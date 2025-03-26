@@ -40,7 +40,7 @@ func (h orderDetailHandler) InitRoutes(g *echo.Group) {
 // @Success 200 {object} model.WebResponse{data=model.ResponseOrderDetail} "Order detail created"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Security BearerAuth
-// @Router /order-details [post]
+// @Router /api/order-details [post]
 func (h orderDetailHandler) Create(c echo.Context) error {
 	token := c.Get("token").(string)
 	fmt.Println("=======Token: ", token)
@@ -62,7 +62,7 @@ func (h orderDetailHandler) Create(c echo.Context) error {
 	// Assuming userResp contains UserId (adjust based on your proto definition)
 	userID := int(userResp.ID) // Adjust this based on your ValidateResponse proto
 
-	created, err := h.OrderDetailUsecase.Create(ctx, userID, payload)
+	created, err := h.OrderDetailUsecase.Create(ctx, userID, payload, userResp.AddressID)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -85,7 +85,7 @@ func (h orderDetailHandler) Create(c echo.Context) error {
 // @Success 200 {object} model.WebResponse{data=model.ResponseOrderDetail} "Order detail found"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Security BearerAuth
-// @Router /order-details/{id} [get]
+// @Router /api/order-details/{id} [get]
 func (h orderDetailHandler) FindByID(c echo.Context) error {
 	token := c.Get("token").(string)
 	ctx := metadata.AppendToOutgoingContext(c.Request().Context(), "authorization", token)
@@ -119,7 +119,7 @@ func (h orderDetailHandler) FindByID(c echo.Context) error {
 // @Success 200 {object} model.WebResponse{data=model.ResponseOrderDetail} "Order detail updated"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Security BearerAuth
-// @Router /order-details/{id} [put]
+// @Router /api/order-details/{id} [put]
 func (h orderDetailHandler) Update(c echo.Context) error {
 	token := c.Get("token").(string)
 	ctx := metadata.AppendToOutgoingContext(c.Request().Context(), "authorization", token)
@@ -157,7 +157,7 @@ func (h orderDetailHandler) Update(c echo.Context) error {
 // @Success 200 {object} model.WebResponse{data=string} "Order detail deleted"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Security BearerAuth
-// @Router /order-details/{id} [delete]
+// @Router /api/order-details/{id} [delete]
 func (h orderDetailHandler) Delete(c echo.Context) error {
 	token := c.Get("token").(string)
 	ctx := metadata.AppendToOutgoingContext(c.Request().Context(), "authorization", token)

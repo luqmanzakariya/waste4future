@@ -20,9 +20,8 @@ type OrderDetail struct {
 }
 
 type PayloadCreateOrderDetail struct {
-	RecycleHubID    string  `json:"recycle_hub_id" validate:"required"`
-	WasteWeight     float64 `json:"waste_weight" validate:"required"`
-	OriginAddressID string  `json:"origin_address_id" validate:"required"`
+	RecycleHubID    string  `json:"recycle_hub_id" validate:"required" example:"67e2a4307d59f2fa0bf8cd14"`
+	WasteWeight     float64 `json:"waste_weight" validate:"required" example:"10"`
 }
 
 type PayloadUpdateOrderDetail struct {
