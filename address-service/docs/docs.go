@@ -15,7 +15,7 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/addresses": {
+        "/api/addresses": {
             "get": {
                 "description": "Find All Addresses",
                 "produces": [
@@ -140,7 +140,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/addresses/{id}": {
+        "/api/addresses/{id}": {
             "get": {
                 "description": "Find Address By ID",
                 "produces": [
@@ -534,9 +534,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "address-service-84457363535.asia-southeast2.run.app/api",
+	Host:             "localhost:8082",
 	BasePath:         "/",
-	Schemes:          []string{"https", "http"},
+	Schemes:          []string{"http", "https"},
 	Title:            "Waste4Future Address Service API",
 	Description:      "This is the documentation of Waste4Future Address Service API",
 	InfoInstanceName: "swagger",

@@ -1,7 +1,7 @@
 {
     "schemes": [
-        "https",
-        "http"
+        "http",
+        "https"
     ],
     "swagger": "2.0",
     "info": {
@@ -10,7 +10,7 @@
         "contact": {},
         "version": "1.0"
     },
-    "host": "user-service-84457363535.asia-southeast2.run.app",
+    "host": "localhost:8080",
     "basePath": "/",
     "paths": {
         "/api/users/login": {

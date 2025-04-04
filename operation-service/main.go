@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"crypto/tls"
+	// "crypto/tls"
 	"log"
 	"net/http"
 	"os"
@@ -24,14 +24,15 @@ import (
 	echoSwagger "github.com/swaggo/echo-swagger"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
+	// "google.golang.org/grpc/credentials"
 )
 
 // @title Operation Service API
 // @version 1.0
 // @description This is the documentation of Operation Service API
-// @host operation-service-84457363535.asia-southeast2.run.app
-// @schemes https http
+// @host localhost:8084
+// @schemes http https
 // @BasePath /
 // @SecurityDefinitions.apikey BearerAuth
 // @In header
@@ -58,26 +59,26 @@ func main() {
 	recyclehubGrpcUrl := os.Getenv("RECYCLEHUB_GRPC_SERVICE_URL")
 
 	// Set up TLS credentials
-	creds := credentials.NewTLS(&tls.Config{
-		InsecureSkipVerify: false, // Set to true only for testing with self-signed certificates
-	})
+	// creds := credentials.NewTLS(&tls.Config{
+	// 	InsecureSkipVerify: false, // Set to true only for testing with self-signed certificates
+	// })
 
 	// Dial User gRPC server with TLS
-	userConn, err := grpc.NewClient(userGrpcUrl, grpc.WithTransportCredentials(creds))
+	userConn, err := grpc.NewClient(userGrpcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to gRPC server: %v", err)
 	}
 	defer userConn.Close()
 
 	// Dial Address gRPC server with TLS
-	addressConn, err := grpc.NewClient(addressGrpcUrl, grpc.WithTransportCredentials(creds))
+	addressConn, err := grpc.NewClient(addressGrpcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to gRPC server: %v", err)
 	}
 	defer addressConn.Close()
 
 	// Dial Recyclehub gRPC server with TLS
-	recyclehubConn, err := grpc.NewClient(recyclehubGrpcUrl, grpc.WithTransportCredentials(creds))
+	recyclehubConn, err := grpc.NewClient(recyclehubGrpcUrl, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatalf("Failed to connect to gRPC server: %v", err)
 	}

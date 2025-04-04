@@ -86,7 +86,7 @@ definitions:
       status:
         type: string
     type: object
-host: user-service-84457363535.asia-southeast2.run.app
+host: localhost:8080
 info:
   contact: {}
   description: This is the documentation of Waste4Future User Service API
@@ -200,8 +200,8 @@ paths:
       tags:
       - Users
 schemes:
-- https
 - http
+- https
 securityDefinitions:
   BearerAuth:
     in: header

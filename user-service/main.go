@@ -31,8 +31,8 @@ import (
 // @title Waste4Future User Service API
 // @version 1.0
 // @description This is the documentation of Waste4Future User Service API
-// @host user-service-84457363535.asia-southeast2.run.app
-// @schemes https http
+// @host localhost:8080
+// @schemes http https
 // @BasePath /
 // @SecurityDefinitions.apikey BearerAuth
 // @In header
