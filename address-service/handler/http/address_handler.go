@@ -37,7 +37,7 @@ func (a addressHandler) InitRoutes(g *echo.Group) {
 // @Success 200 {object} model.WebResponse{data=model.ResponseAddress} "Address created"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Security BearerAuth
-// @Router /addresses [post]
+// @Router /api/addresses [post]
 func (a addressHandler) Create(c echo.Context) error {
 	var payloadCreateAddress model.PayloadCreateAddress
 	err := c.Bind(&payloadCreateAddress)
@@ -66,7 +66,7 @@ func (a addressHandler) Create(c echo.Context) error {
 // @Produce json
 // @Success 200 {object} model.WebResponse{data=[]model.Address} "Address list"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
-// @Router /addresses [get]
+// @Router /api/addresses [get]
 func (a addressHandler) FindAll(c echo.Context) error {
 	addresses, err := a.AddressUsecase.FindAll(c.Request().Context())
 	if err != nil {
@@ -91,7 +91,7 @@ func (a addressHandler) FindAll(c echo.Context) error {
 // @Success 200 {object} model.WebResponse{data=model.ResponseAddress} "Address found"
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
-// @Router /addresses/{id} [get]
+// @Router /api/addresses/{id} [get]
 func (a addressHandler) FindByID(c echo.Context) error {
 	// # Get ID Params
 	id := c.Param("id")
@@ -121,7 +121,7 @@ func (a addressHandler) FindByID(c echo.Context) error {
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
 // @Security BearerAuth
-// @Router /addresses/{id} [PUT]
+// @Router /api/addresses/{id} [PUT]
 func (a addressHandler) Update(c echo.Context) error {
 	// # Get ID Params
 	id := c.Param("id")
@@ -156,7 +156,7 @@ func (a addressHandler) Update(c echo.Context) error {
 // @Failure 400 {object} model.WebResponse{code=int,data=interface{},status=string} "Bad Request"
 // @Failure 500 {object} model.WebResponse{code=int,data=interface{},status=string} "Internal Server Error"
 // @Security BearerAuth
-// @Router /addresses/{id} [DELETE]
+// @Router /api/addresses/{id} [DELETE]
 func (a addressHandler) Delete(c echo.Context) error {
 	// # Get ID Params
 	id := c.Param("id")

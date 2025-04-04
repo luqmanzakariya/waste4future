@@ -3,9 +3,10 @@ module address-service
 go 1.23.4
 
 require (
-	github.com/swaggo/swag v1.8.12
+	github.com/swaggo/swag v1.16.4
 	go.mongodb.org/mongo-driver/v2 v2.1.0
 	google.golang.org/grpc v1.71.0
+	google.golang.org/protobuf v1.36.5
 )
 
 require (
@@ -34,7 +35,6 @@ require (
 	golang.org/x/time v0.8.0 // indirect
 	golang.org/x/tools v0.21.1-0.20240508182429-e35e4ccd0d2d // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250115164207-1a7da9e5054f // indirect
-	google.golang.org/protobuf v1.36.5 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 

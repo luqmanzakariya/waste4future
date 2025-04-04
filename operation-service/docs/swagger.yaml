@@ -303,7 +303,7 @@ definitions:
       status:
         type: string
     type: object
-host: operation-service-84457363535.asia-southeast2.run.app
+host: localhost:8084
 info:
   contact: {}
   description: This is the documentation of Operation Service API
@@ -1089,8 +1089,8 @@ paths:
       tags:
       - Transactions
 schemes:
-- https
 - http
+- https
 securityDefinitions:
   BearerAuth:
     in: header

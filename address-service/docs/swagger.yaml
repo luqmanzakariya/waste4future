@@ -74,14 +74,14 @@ definitions:
       status:
         type: string
     type: object
-host: address-service-84457363535.asia-southeast2.run.app/api
+host: localhost:8082
 info:
   contact: {}
   description: This is the documentation of Waste4Future Address Service API
   title: Waste4Future Address Service API
   version: "1.0"
 paths:
-  /addresses:
+  /api/addresses:
     get:
       description: Find All Addresses
       produces:
@@ -151,7 +151,7 @@ paths:
       summary: Create an Addressa
       tags:
       - Address
-  /addresses/{id}:
+  /api/addresses/{id}:
     delete:
       description: Delete Address By ID
       parameters:
@@ -307,8 +307,8 @@ paths:
       tags:
       - Address
 schemes:
-- https
 - http
+- https
 securityDefinitions:
   BearerAuth:
     in: header

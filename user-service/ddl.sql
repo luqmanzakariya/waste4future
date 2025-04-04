@@ -38,6 +38,6 @@ BEGIN
 END $$;
 
 INSERT INTO users (email, name, password, address_id) VALUES
-('luqman@mail.com', 'Luqman', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', ''),
-('yosua@mail.com', 'Yosua', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', ''),
-('nafatul@mail.com', 'Nafatul', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', '');
+('luqman@mail.com', 'Luqman', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', '67e122fe715004e3bbdce21e'),
+('yosua@mail.com', 'Yosua', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', '67e122fe715004e3bbdce21e'),
+('nafatul@mail.com', 'Nafatul', '$2a$10$ySQb0xIYeyOuGR2.rADgcO8NGjSrdfVidcutjsIvFFnvLFaVaNLZO', '67e122fe715004e3bbdce21e');

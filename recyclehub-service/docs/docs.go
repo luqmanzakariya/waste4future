@@ -672,9 +672,9 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "recyclehub-service-84457363535.asia-southeast2.run.app",
+	Host:             "localhost:8081",
 	BasePath:         "/",
-	Schemes:          []string{"https", "http"},
+	Schemes:          []string{"http", "https"},
 	Title:            "Waste4Future Recycle Service API",
 	Description:      "This is the documentation of Waste4Future Recyclehub Service API",
 	InfoInstanceName: "swagger",
