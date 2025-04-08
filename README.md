@@ -1,6 +1,4 @@
-# Wasted4Future ❌
-
-[Feel free to try this API. Click to access the documentation.](https://blank.page/)
+# Wasted4Future
 
 ## Description: 
 
@@ -26,37 +24,38 @@ Waste4Future is an on-demand waste collection service that simplifies recycling 
 * PostgreSQL
 * MongoDB
 * JWT-Authorization
-* 3rd Party APIs (Xendit, Google Maps)
-* SMTP
+* 3rd Party API (SendGrid)
 * REST
 * Swagger
-* Testify?
+* Testify
 
-## Application Flow
+## Application System Design
 
-![Final Flow](./misc/flow.svg)
+![System Design](./misc/system-design.svg)
 
 ## ERD
 
 ### User Service (Postgres)
 
-![User service ERD](./misc/users.svg)
+![User Service ERD](./misc/user_erd.svg)
 
-### Merchant Service (Postgres)
+### Address Service (MongoDB)
 
-![ERD](./misc/merchant_erd.svg) ❌
+![Address Service ERD](./misc/address_erd.svg)
 
-### Order Service (MongoDB) ❌
+### Recyclehub Service (MongoDB)
 
-![ERD](./misc/order_erd.svg)
+![Recyclehub Service ERD](./misc/recyclehub_erd.svg)
+
+### Operation Service (MongoDB)
+
+![Operation Service ERD](./misc/operation_erd.svg)
 
 ## Deployment
 
 This app is containerized and deployed to Google Cloud Run as a microservices. This means for each service (user_service, address_service, recyclehub_service, and operation_service) is a separate instance. 
 
 To deploy, go to the root folder for each service and type:
-
-❌
 
 ```bash
 gcloud builds submit --pack image=gcr.io/[PROJECT-ID]/[SERVICE-NAME]
